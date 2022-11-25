@@ -9,4 +9,54 @@ output:
     df_print: paged
 ---
 
+why did i chose this task
+intro to the data
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+```{r}
+here::here()
+
+decathlon <- read_csv(here("clean_data/clean_decathlon_data.csv"))
+```
+
+
+
+1. Who had the longest long jump seen in the data?
+```{r}
+decathlon %>% 
+  filter(long_jump == max(long_jump))
+```
+Bryan Clay had the longest result for the long jump from the data. This jump was 
+at the 2004 Olympic Games and was a personal best at the time. Clay went on to win
+the silver medal in this competition. 
+
+2. What was the average 100m time in each competition?
+
+```{r}
+decathlon %>% 
+  group_by(competition) %>% 
+  summarise(avg_100m_time = round(mean(x100m), 2))
+```
+The Olympic Games has a faster average time for the 100m than Decastar. I don't 
+think this is a surprising result. The Olympics Games is a higher profile 
+competition and athletes design four year training programs around the Olympic 
+schedule to ensure they peak for this competition. 
+
+3. Who had the highest total points across both competitions?
+
+Assumption - highest total points across both competitions means the points are 
+summed for each athlete (that competed in both competitions) and the athelte with
+the highest points identified. 
+
+```{r}
+decathlon %>% 
+  group_by(athlete) %>% 
+  select(athlete, points) %>% 
+  mutate(total_points = sum(points)) %>% 
+  filter(total_points == max(total_points))
+```
 

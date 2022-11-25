@@ -17,9 +17,11 @@ decathlon <- rownames_to_column(decathlon, "athlete")
 # No NULLs
 # all values in expected range
 
+#changing athletes names to all be lowercase
+decathlon$athlete <- tolower(decathlon$athlete)
 
+# Tidying up competition names (bit pedantic but looks neater)
+decathlon <- decathlon %>% 
+  mutate(competition = if_else(competition == "Decastar", "decastar", "olympics"))
 
-check for values out of expected range
-change names so all lowercase
-do names match between competitions
-change names of competitions
+write_csv(decathlon, "clean_data/clean_decathlon_data.csv")
