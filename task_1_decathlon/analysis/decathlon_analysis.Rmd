@@ -1,5 +1,5 @@
 ---
-title: "Dirty Data Task 1 Decathlon"
+title: "Dirty Data Project Task 1 Decathlon"
 output:
   html_document:
     toc: yes
@@ -9,8 +9,7 @@ output:
     df_print: paged
 ---
 
-why did i chose this task
-intro to the data
+why did i chose this task intro to the data
 
 ```{r}
 library(tidyverse)
@@ -23,40 +22,88 @@ here::here()
 decathlon <- read_csv(here("clean_data/clean_decathlon_data.csv"))
 ```
 
+1.  Who had the longest long jump seen in the data?
 
-
-1. Who had the longest long jump seen in the data?
 ```{r}
 decathlon %>% 
   filter(long_jump == max(long_jump))
 ```
-Bryan Clay had the longest result for the long jump from the data. This jump was 
-at the 2004 Olympic Games and was a personal best at the time. Clay went on to win
-the silver medal in this competition. 
 
-2. What was the average 100m time in each competition?
+Bryan Clay from the US had the longest result for the long jump from the
+data. This jump was at the 2004 Olympic Games and was a personal best at
+the time. Clay went on to win the silver medal in this competition.
+
+2.  What was the average 100m time in each competition?
 
 ```{r}
 decathlon %>% 
   group_by(competition) %>% 
   summarise(avg_100m_time = round(mean(x100m), 2))
 ```
-The Olympic Games has a faster average time for the 100m than Decastar. I don't 
-think this is a surprising result. The Olympics Games is a higher profile 
-competition and athletes design four year training programs around the Olympic 
-schedule to ensure they peak for this competition. 
 
-3. Who had the highest total points across both competitions?
+The Olympic Games has a faster average time for the 100m than Decastar.
+I don't think this is a surprising result. The Olympics Games is a
+higher profile competition and athletes design four year training
+programs around the Olympic schedule to ensure they peak for this
+competition.
 
-Assumption - highest total points across both competitions means the points are 
-summed for each athlete (that competed in both competitions) and the athelte with
-the highest points identified. 
+3.  Who had the highest total points across both competitions?
+
+Assumption - highest total points across both competitions means the
+points are summed for each athlete (that competed in both competitions)
+and the athlete with the highest points identified.
 
 ```{r}
 decathlon %>% 
   group_by(athlete) %>% 
-  select(athlete, points) %>% 
-  mutate(total_points = sum(points)) %>% 
+  summarise(total_points = sum(points)) %>% 
   filter(total_points == max(total_points))
 ```
 
+Roman Sebrle, an athlete from the Czech Republic, has the highest total
+points across both competitions. He won the 2004 Olympics and the 2004
+Decastar event which is where this data comes from.
+
+4.  What was the shot-put scores for the top three competitors in each
+    competition?
+
+Assumption - the question means the shot-put distance since it is not
+possible to calculate the "shot-put scores" from this data.
+
+```{r}
+decathlon %>% 
+# Slicing the 6 lowest numbers in rank column to catch the 1, 2, 3 ranked positions in each competition  
+  slice_min(rank, n = 6) %>% 
+  select(athlete, shot_put, rank, competition) %>% 
+  arrange(competition, rank)
+
+```
+
+The first, second and third places in both competitions were taken by
+the same men in the same order. The shot-put distances in the Olympics
+are all higher than those thrown in the Decastar competition.
+
+5.  What was the average points for competitors who ran the 400m in less
+    than 50 seconds vs. those than ran 400m in more than 50 seconds?
+
+```{r}
+# A quick check showed no one ran exactly 50 seconds so all athletes will be caught by >50 and <50
+
+avg_points_slower_athletes<- decathlon %>% 
+  filter(x400m > 50) %>% 
+  summarise(avg_points_slower_athletes = round(mean(points), 0)) %>% 
+  pull()
+
+avg_points_faster_athletes <- decathlon %>% 
+  filter(x400m < 50) %>% 
+  summarise(avg_points_faster_athletes = round(mean(points), 0)) %>% 
+  pull()
+
+tibble(
+  "x400m_speed" = c("less than 50 sec", "more than 50 sec"),
+  "average_points" = c(avg_points_slower_athletes, avg_points_faster_athletes)
+)
+```
+
+The athletes who are slower at the 400 m have a lower points average
+than those who are faster.
