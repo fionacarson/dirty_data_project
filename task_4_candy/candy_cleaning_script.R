@@ -150,18 +150,23 @@ countries <- all_candy %>%
   )
 
 # convert country names to lowercase
+all_candy$country <- str_to_lower(all_candy$country)
 
 # US seems to be written in lots and lots of different ways. Let's try to combine them. 
   
 
-
 all_candy2 <- all_candy %>%    
   mutate(
     country = case_when(
-      str_detect(country, "(?i)usa") ~ "USA",
-      str_detect(country, "(?i)america") ~ "USA",
-      str_detect(country, "(?i)united s") ~ "USA",
-      str_detect(country, "(?i)canada") ~ "Canada",
+      str_detect(country, "usa") ~ "usa",
+      str_detect(country, "america") ~ "usa",
+      str_detect(country, "merica") ~ "usa",
+      str_detect(country, "murica") ~ "usa",
+      str_detect(country, "amerca") ~ "usa",
+      str_detect(country, "united s") ~ "usa",
+      str_detect(country, "unites s") ~ "usa",
+      str_detect(country, "alaska") ~ "usa",
+      str_detect(country, "california") ~ "usa",
       TRUE ~ country
     )
   ) 
@@ -175,9 +180,26 @@ countries <- all_candy2 %>%
   summarise(
     n = n()
   )
+countries
 
 
+countries <- all_candy3 %>% 
+  group_by(country) %>% 
+  summarise(
+    n = n()
+  )
 
+convert_to_usa <- c("'merica")
+
+convert_to_na <- c("1", "30.0", "32", "35", "44.0", "45", "46", "47.0", "51.0", "54.0", "a", "a tropical island southof the equator", "atlantis", "can", "canae", "cascadia", "denial", "earth", "europe", "fear and loathing", "god's country", "i don't know anymore", "i pretend to be from canada, but i am really from the united states.", "insanity lately", "narnia", "neverland", "not the usa or canada", "one of the best ones", "see above", "somewhere", "soviet canuckistan", "subscribe to dm4uz3 on youtube", "the republic of cascadia", "there isn't one for old men", "this one", "trumpistan", "ud")
+
+all_candy3 <- all_candy2 %>% 
+  mutate(country = na_if(country, country %in% c("1", "30.0", "32", "35", "44.0", "45", "46", "47.0", "51.0", "54.0", "a", "a tropical island southof the equator", "atlantis", "can", "canae", "cascadia", "denial", "earth", "europe", "fear and loathing", "god's country", "i don't know anymore", "i pretend to be from canada, but i am really from the united states.", "insanity lately", "narnia", "neverland", "not the usa or canada", "one of the best ones", "see above", "somewhere", "soviet canuckistan", "subscribe to dm4uz3 on youtube", "the republic of cascadia", "there isn't one for old men", "this one", "trumpistan", "ud")))
+
+
+all_candy <- all_candy %>%
+  mutate(age = as.integer(age)) %>% 
+  mutate(age = na_if(age, age < 2 | age < 110))
 
 
 
