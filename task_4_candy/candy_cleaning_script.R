@@ -12,7 +12,8 @@ candy2016 <- janitor::clean_names(candy2016)
 candy2017 <- janitor::clean_names(candy2017)
 
 # Man these column names are messy!!
-# Let's set up a standard set of column names across the 3 datasets:
+# Let's set up a standard set of column names across the 3 datasets which look like 
+# this:
 #     year
 #     age
 #     going_out
@@ -36,7 +37,6 @@ candy2015 <- candy2015 %>%
     mutate(gender = c(rep(NA, 5630)), country = c(rep(NA, 5630)))
   
 
-
 # 2016
 candy2016 <- candy2016 %>% 
   select(-timestamp, -which_state_province_county_do_you_live_in, -c(107:123)) %>%
@@ -45,6 +45,7 @@ candy2016 <- candy2016 %>%
          going_out = are_you_going_actually_going_trick_or_treating_yourself,
          country = which_country_do_you_live_in,
          gender = your_gender) 
+
 
 # 2017
 candy2017 <- candy2017 %>% 
@@ -60,8 +61,15 @@ candy2017 <- candy2017 %>%
 
 names(candy2017) <- sub('^q6_', '', names(candy2017))
 
-# Sort all columns alphabetically, the move 5 non-candy colummns to start
-# This method should be more transferable to other datasets
+# janitor::clean_names didn't change the 100_grand_bar column in 2017 to x100_grand_bar like it did for 2015 and 2016 as it had the q6 prefix. Done manually below. 
+
+candy2017 <- candy2017 %>% 
+  rename(x100_grand_bar = `100_grand_bar`)
+
+
+
+# Sort all columns alphabetically, then move 5 non-candy columns to start
+
 # MAKE THIS A FUNCTION
 candy2015 <- candy2015 %>% 
   select(sort(names(.))) %>% 
@@ -71,16 +79,20 @@ candy2016 <- candy2016 %>%
   select(sort(names(.))) %>% 
   relocate("year", "age", "going_out", "gender", "country", everything())
 
+candy2017 <- candy2017 %>% 
+  select(sort(names(.))) %>% 
+  relocate("year", "age", "going_out", "gender", "country", everything())
 
 
-arrange_columns <- function(x) {
-  x %>%  
-    select(sort(names(.))) %>% 
-    relocate("year", "age", "going_out", "gender", "country", everything())
- return(y)
-}
+# THIS FUNCTION NOT WORKING YET
+#arrange_columns <- function(x) {
+#  x %>%  
+#    select(sort(names(.))) %>% 
+#    relocate("year", "age", "going_out", "gender", "country", everything())
+# return(y)
+#}
   
-arrange_columns(candy2017)
+#arrange_columns(candy2017)
 
 
-
+rbind(candy2015, candy2016)
