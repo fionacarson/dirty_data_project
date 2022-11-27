@@ -27,7 +27,7 @@ candy2017 <- janitor::clean_names(candy2017)
 # 2015
 candy2015 <- candy2015 %>% 
 # Removing columns I don't think are needed
-    select(-timestamp, -c(97:113), -c(116, 124)) %>%
+    select(-timestamp, -c(97:113), -c(116:124)) %>%
 # Creating a year column (to distinguish datasets once joined)
   mutate(year = c(rep(2015, 5630))) %>% 
 # fixing column names
@@ -95,4 +95,91 @@ candy2017 <- candy2017 %>%
 #arrange_columns(candy2017)
 
 
-rbind(candy2015, candy2016)
+# Joining datasets
+# Use full join, there should be no matching rows as the year will always be different. 
+
+# Checking how many columns are in 2016 but not 2015
+setdiff(names(candy2015), names(candy2016))
+# 22 columns only in 2016
+
+# Expect 6889 (5630 + 1259) rows and 122 columns in all_candy
+all_candy <- full_join(candy2015, candy2016)
+
+# Now add 2017 data to all_candy
+setdiff(names(candy2017), names(all_candy))
+# 7 columns in 2017 but not all_candy
+
+# Expect 9349 (6889 + 2460) rows and 129 columns
+all_candy <- full_join(all_candy, candy2017)
+
+# AGE
+# No nulls present. Convert column to integer. 
+# Unlikely anyone under 2 or over 110 filled in survey. Convert ages outside this range to NAs
+
+all_candy <- all_candy %>%
+  mutate(age = as.integer(age)) %>% 
+  mutate(age = na_if(age, age < 2 | age < 110))
+
+# GOING OUT
+
+all_candy %>% 
+  group_by(going_out) %>% 
+  summarise(
+    n = n()
+  )
+
+# The going_out column looks fine, it contains yes, no and NA 
+
+# GENDER 
+
+all_candy %>% 
+  group_by(gender) %>% 
+  summarise(
+    n = n()
+  )
+
+# five responses for gender which all look fine
+
+# COUNTRY
+# ok its the big one - how to fix this mess?!
+
+countries <- all_candy %>% 
+  group_by(country) %>% 
+  summarise(
+    n = n()
+  )
+
+# convert country names to lowercase
+
+# US seems to be written in lots and lots of different ways. Let's try to combine them. 
+  
+
+
+all_candy2 <- all_candy %>%    
+  mutate(
+    country = case_when(
+      str_detect(country, "(?i)usa") ~ "USA",
+      str_detect(country, "(?i)america") ~ "USA",
+      str_detect(country, "(?i)united s") ~ "USA",
+      str_detect(country, "(?i)canada") ~ "Canada",
+      TRUE ~ country
+    )
+  ) 
+
+         
+         
+
+
+countries <- all_candy2 %>% 
+  group_by(country) %>% 
+  summarise(
+    n = n()
+  )
+
+
+
+
+
+
+# shows number of distinct values in each column
+#sapply(all_candy, function(x) n_distinct(x))
