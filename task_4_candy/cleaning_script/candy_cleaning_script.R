@@ -197,23 +197,17 @@ all_candy %>%
 ## Country----
 # ok its the big one - how to fix this mess?!
 
-countries <- all_candy %>% 
-  group_by(country) %>% 
-  summarise(
-    n = n()
-  )
-
 # convert country names to lowercase
 all_candy$country <- str_to_lower(all_candy$country)
 
-# US seems to be written in lots and lots of different ways. Let's try to combine them. 
-  
 
-all_candy2 <- all_candy %>%    
+all_candy <- all_candy %>%    
   mutate(
     country = case_when(
+# US seems to be written in lots and lots of different ways - lets combine
       str_detect(country, "usa|america|merica|murica|amerca|united s|unites s|alaska|california|i pretend to be from canada, but i am really from the united states.|murrika|new jersey|new york|pittsburgh|north carolina|the yoo ess of aaayyyyyy|u s|u s a|u.s.|u.s.a.|unhinged states|unied states|unite states|units states|us of a|ussa|eua") ~ "usa",
-      str_detect(country, "1|30.0|32|35|44.0|45|46|47.0|51.0|54.0|a tropical island south of the equator|atlantis|canae|cascadia|denial|earth|europe|fear and loathing|god's country|i don't know anymore|insanity lately|narnia|neverland|not the usa or canada|one of the best ones|see above|somewhere|soviet canuckistan|subscribe to dm4uz3 on youtube|the republic of cascadia|there isn't one for old men|this one|trumpistan|ud") ~ NA_character_,
+# lots of funny people whose answers need converted to NAs
+        str_detect(country, "1|30.0|32|35|44.0|45|46|47.0|51.0|54.0|a tropical island south of the equator|atlantis|canae|cascadia|denial|earth|europe|fear and loathing|god's country|i don't know anymore|insanity lately|narnia|neverland|not the usa or canada|one of the best ones|see above|somewhere|soviet canuckistan|subscribe to dm4uz3 on youtube|the republic of cascadia|there isn't one for old men|this one|trumpistan|ud") ~ NA_character_,
       str_detect(country, "scotland|endland|england|u.k.|united kindom|united kingdom") ~ "uk",
       str_detect(country, "brasil") ~ "brazil",
       str_detect(country, "españa") ~ "spain",
@@ -222,37 +216,23 @@ all_candy2 <- all_candy %>%
       str_detect(country, "korea") ~ "south korea",
       str_detect(country, "netherlands") ~ "the netherlands", 
       str_detect(country, "^[a]$") ~ NA_character_,
-      str_detect(country, "^[u][s]$") ~ NA_character_,
-      str_detect(country, "^[c][a][n]$") ~ NA_character_,
+      str_detect(country, "^[u][s]$") ~ "usa",
+# "can" might be canada but no way to be sure so just putting in it with NAs 
+     str_detect(country, "^[c][a][n]$") ~ NA_character_,
       TRUE ~ country
     )
   ) 
 
-         
-
-
-
-countries <- all_candy2 %>% 
+      
+all_candy %>% 
   group_by(country) %>% 
   summarise(
     n = n()
   )
 
+# We've gone from 139 countries to 37 countries - woohoo!  
 
 
+# Writing data ----
 
-
-convert_to_na <- c("1", "30.0", "32", "35", "44.0", "45", "46", "47.0", "51.0", "54.0", "a", "a tropical island southof the equator", "atlantis", "can", "canae", "cascadia", "denial", "earth", "europe", "fear and loathing", "god's country", "i don't know anymore", "i pretend to be from canada, but i am really from the united states.", "insanity lately", "narnia", "neverland", "not the usa or canada", "one of the best ones", "see above", "somewhere", "soviet canuckistan", "subscribe to dm4uz3 on youtube", "the republic of cascadia", "there isn't one for old men", "this one", "trumpistan", "ud")
-
-all_candy3 <- all_candy2 %>% 
-  mutate(country = na_if(country, country %in% c("1", "30.0", "32", "35", "44.0", "45", "46", "47.0", "51.0", "54.0", "a", "a tropical island southof the equator", "atlantis", "can", "canae", "cascadia", "denial", "earth", "europe", "fear and loathing", "god's country", "i don't know anymore", "i pretend to be from canada, but i am really from the united states.", "insanity lately", "narnia", "neverland", "not the usa or canada", "one of the best ones", "see above", "somewhere", "soviet canuckistan", "subscribe to dm4uz3 on youtube", "the republic of cascadia", "there isn't one for old men", "this one", "trumpistan", "ud")))
-
-
-all_candy <- all_candy %>%
-  mutate(age = as.integer(age)) %>% 
-  mutate(age = na_if(age, age < 2 | age < 110))
-
-
-
-# shows number of distinct values in each column
-#sapply(all_candy, function(x) n_distinct(x))
+write_csv(all_candy, "clean_data/clean_candy_data.csv")

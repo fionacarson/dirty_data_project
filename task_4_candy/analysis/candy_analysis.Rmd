@@ -1,0 +1,30 @@
+---
+title: "Dirty Data Project - Task 4 Halloween Candy Data"
+output:
+  html_document:
+    toc: yes
+    toc_float: true
+    toc_depth: '2'
+    highlight: tango
+    df_print: paged
+---
+
+## Introduction
+
+
+
+## Assumptions
+
+
+
+## Cleaning
+
+
+## Load libraries and import data
+
+
+
+## Question 1
+
+**What is the total number of candy ratings given across the three years?**
+
