@@ -111,7 +111,7 @@ all_candy <- full_join(candy2015, candy2016)
 # Expect 9349 (6889 + 2460) rows and 129 columns
 all_candy <- full_join(all_candy, candy2017)
 
-#Sorting and fixing columns manually----
+#Fixing column names and combining columns----
 
 # Rerun alphabetising code on full dataset 
 all_candy <- all_candy %>% 
@@ -119,19 +119,18 @@ all_candy <- all_candy %>%
   relocate("year", "age", "going_out", "gender", "country", everything())
 
 
-
-
-# Read through column names, identified and fixed issues for following columns:
+# Scanned through column names by eye, identified and fixed issues for following columns:
 #   abstain from m and m 
 #   brown globs and maryjanes
 #   bonkers
 #   box o raisins
-#   hersheys - (dark chocolate and kisses)
+#   hersheys
 #   m and ms
 #   sweetums
 
+# Could this be a function? Where you input the columns to combine, the new column name and then delete the one you don't want?? 
 
-all_candy2 <- all_candy %>% 
+all_candy <- all_candy %>% 
   rename(abstained_from_m_and_m_ing = abstained_from_m_ming) %>% 
 # there are 3 columns which may be related. In 2015 and 2016 we have 1) anonymous brown globs that come in black and orange wrappers and 2) mary janes. In 2017 we have - anonymous brown globs that come in black and orange wrappers aka mary janes. Decision made to combine the columns which say have "mary jane" in name. Also an internet search shows that Mary Jane sweets have the name on the wrapper so they are unlikely to be anonymous brown blobs. 
   mutate(mary_janes = coalesce(anonymous_brown_globs_that_come_in_black_and_orange_wrappers_a_k_a_mary_janes, mary_janes)) %>% 
@@ -139,25 +138,35 @@ all_candy2 <- all_candy %>%
 # In 2017 the bonkers column was split into 'bonkers the candy' and 'bonkers the board game'. Combine 'bonkers the candy' with other bonkers data from 2015 adn 2016 and remove the 'bonkers the candy column. 
   mutate(bonkers = coalesce(bonkers, bonkers_the_candy)) %>% 
   select(-bonkers_the_candy) %>% 
-# box-o-raisins columns spelt differently, these were combined
+# box-o-raisins columns spelt differently in different years, these were combined
   mutate(box_o_raisins = coalesce(box_o_raisins, boxo_raisins)) %>% 
   select(-boxo_raisins) %>% 
 # combine the two dark chocolate hershey columns
-  
+  mutate(hersheys_dark_chocolate = coalesce(dark_chocolate_hershey, hersheys_dark_chocolate)) %>% 
+  select(-dark_chocolate_hershey) %>% 
+# combine the two fake M&M columns
+  mutate(third_party_m_ms = coalesce(independent_m_ms, third_party_m_ms)) %>% 
+  select(-independent_m_ms) %>% 
+# combine the two sweetums columns
+mutate(sweetums = coalesce(sweetums, sweetums_a_friend_to_diabetes)) %>% 
+  select(-sweetums_a_friend_to_diabetes)
+
+# All columns were checked to make sure only NAs were being overwritten when columns were combined. 
+
+
+
+all_candy <- all_candy %>% 
+  select(sort(names(.))) %>% 
+  relocate("year", "age", "going_out", "gender", "country", everything())
 
 
 
 
-hersheys <- all_candy %>% 
-  select()
 
 
+# Fixing column contents (non-candy columns)----
 
-
-
-
-
-# AGE
+## Age----
 # No nulls present. Convert column to integer. 
 # Unlikely anyone under 2 or over 110 filled in survey. Convert ages outside this range to NAs
 
@@ -165,7 +174,7 @@ all_candy <- all_candy %>%
   mutate(age = as.integer(age)) %>% 
   mutate(age = na_if(age, age < 2 | age < 110))
 
-# GOING OUT
+## Going out----
 
 all_candy %>% 
   group_by(going_out) %>% 
@@ -175,7 +184,7 @@ all_candy %>%
 
 # The going_out column looks fine, it contains yes, no and NA 
 
-# GENDER 
+## Gender---- 
 
 all_candy %>% 
   group_by(gender) %>% 
@@ -185,7 +194,7 @@ all_candy %>%
 
 # five responses for gender which all look fine
 
-# COUNTRY
+# Country----
 # ok its the big one - how to fix this mess?!
 
 countries <- all_candy %>% 
@@ -203,15 +212,12 @@ all_candy$country <- str_to_lower(all_candy$country)
 all_candy2 <- all_candy %>%    
   mutate(
     country = case_when(
-      str_detect(country, "usa") ~ "usa",
-      str_detect(country, "america") ~ "usa",
-      str_detect(country, "merica") ~ "usa",
-      str_detect(country, "murica") ~ "usa",
-      str_detect(country, "amerca") ~ "usa",
-      str_detect(country, "united s") ~ "usa",
-      str_detect(country, "unites s") ~ "usa",
-      str_detect(country, "alaska") ~ "usa",
-      str_detect(country, "california") ~ "usa",
+      str_detect(country, "usa|america|merica|murica|amerca|united s|unites s|alaska|california|i pretend to be from canada, but i am really from the united states.|murrika|new jersey|new york|pittsburgh|north carolina|the yoo ess of aaayyyyyy|u s|u s a|u.s.|u.s.a.|unhinged states|unied states|unite states|units states|us of a|ussa") ~ "usa",
+      str_detect(country, "1|30.0|32|35|44.0|45|46|47.0|51.0|54.0|a tropical island south of the equator|atlantis|canae|cascadia|denial|earth|europe|fear and loathing|god's country|i don't know anymore|insanity lately|narnia|neverland|not the usa or canada|one of the best ones|see above|somewhere|soviet canuckistan|subscribe to dm4uz3 on youtube|the republic of cascadia|there isn't one for old men|this one|trumpistan|ud") ~ "NA",
+      str_detect(country, "scotland|endland|england|u.k.|united kindom") ~ "uk",
+      str_detect(country, "brasil") ~ "brazil",
+      str_detect(country, "españa") ~ "spain",
+      str_detect(country, "canada`") ~ "canada",
       TRUE ~ country
     )
   ) 
@@ -225,16 +231,10 @@ countries <- all_candy2 %>%
   summarise(
     n = n()
   )
-countries
 
 
-countries <- all_candy3 %>% 
-  group_by(country) %>% 
-  summarise(
-    n = n()
-  )
 
-convert_to_usa <- c("'merica")
+
 
 convert_to_na <- c("1", "30.0", "32", "35", "44.0", "45", "46", "47.0", "51.0", "54.0", "a", "a tropical island southof the equator", "atlantis", "can", "canae", "cascadia", "denial", "earth", "europe", "fear and loathing", "god's country", "i don't know anymore", "i pretend to be from canada, but i am really from the united states.", "insanity lately", "narnia", "neverland", "not the usa or canada", "one of the best ones", "see above", "somewhere", "soviet canuckistan", "subscribe to dm4uz3 on youtube", "the republic of cascadia", "there isn't one for old men", "this one", "trumpistan", "ud")
 
