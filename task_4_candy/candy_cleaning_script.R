@@ -194,7 +194,7 @@ all_candy %>%
 
 # five responses for gender which all look fine
 
-# Country----
+## Country----
 # ok its the big one - how to fix this mess?!
 
 countries <- all_candy %>% 
@@ -212,18 +212,24 @@ all_candy$country <- str_to_lower(all_candy$country)
 all_candy2 <- all_candy %>%    
   mutate(
     country = case_when(
-      str_detect(country, "usa|america|merica|murica|amerca|united s|unites s|alaska|california|i pretend to be from canada, but i am really from the united states.|murrika|new jersey|new york|pittsburgh|north carolina|the yoo ess of aaayyyyyy|u s|u s a|u.s.|u.s.a.|unhinged states|unied states|unite states|units states|us of a|ussa") ~ "usa",
-      str_detect(country, "1|30.0|32|35|44.0|45|46|47.0|51.0|54.0|a tropical island south of the equator|atlantis|canae|cascadia|denial|earth|europe|fear and loathing|god's country|i don't know anymore|insanity lately|narnia|neverland|not the usa or canada|one of the best ones|see above|somewhere|soviet canuckistan|subscribe to dm4uz3 on youtube|the republic of cascadia|there isn't one for old men|this one|trumpistan|ud") ~ "NA",
-      str_detect(country, "scotland|endland|england|u.k.|united kindom") ~ "uk",
+      str_detect(country, "usa|america|merica|murica|amerca|united s|unites s|alaska|california|i pretend to be from canada, but i am really from the united states.|murrika|new jersey|new york|pittsburgh|north carolina|the yoo ess of aaayyyyyy|u s|u s a|u.s.|u.s.a.|unhinged states|unied states|unite states|units states|us of a|ussa|eua") ~ "usa",
+      str_detect(country, "1|30.0|32|35|44.0|45|46|47.0|51.0|54.0|a tropical island south of the equator|atlantis|canae|cascadia|denial|earth|europe|fear and loathing|god's country|i don't know anymore|insanity lately|narnia|neverland|not the usa or canada|one of the best ones|see above|somewhere|soviet canuckistan|subscribe to dm4uz3 on youtube|the republic of cascadia|there isn't one for old men|this one|trumpistan|ud") ~ NA_character_,
+      str_detect(country, "scotland|endland|england|u.k.|united kindom|united kingdom") ~ "uk",
       str_detect(country, "brasil") ~ "brazil",
       str_detect(country, "españa") ~ "spain",
       str_detect(country, "canada`") ~ "canada",
+# korea added to south korea as unlikely anyone from north korea would be filling in such as survey and also likely they would put north korea rather than just korea as country
+      str_detect(country, "korea") ~ "south korea",
+      str_detect(country, "netherlands") ~ "the netherlands", 
+      str_detect(country, "^[a]$") ~ NA_character_,
+      str_detect(country, "^[u][s]$") ~ NA_character_,
+      str_detect(country, "^[c][a][n]$") ~ NA_character_,
       TRUE ~ country
     )
   ) 
 
          
-         
+
 
 
 countries <- all_candy2 %>% 
