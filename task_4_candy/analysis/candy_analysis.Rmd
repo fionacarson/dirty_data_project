@@ -35,7 +35,7 @@ candy <- read_csv(here("clean_data/clean_candy_data.csv"))
 **What is the total number of candy ratings given across the three years?**
 
 ```{r}
-num_ratings_by_column <- candy %>% 
+candy %>% 
   summarise(across(
     .cols = 6:123,
     .fns = ~sum(!is.na(.x)))) %>% 
@@ -43,6 +43,8 @@ num_ratings_by_column <- candy %>%
 
 
 ```
+
+
 
 ## Question 2
 
@@ -52,5 +54,60 @@ num_ratings_by_column <- candy %>%
 candy %>% 
   filter(going_out == "Yes") %>% 
   summarise(avg_age_trick_or_treaters = round(mean(age, na.rm = TRUE)))
+```
+
+## Question 3
+
+**What was the average age of people who are not going out trick or treating?**
+
+```{r}
+candy %>% 
+  filter(going_out == "No") %>% 
+  summarise(avg_age_trick_or_treaters = round(mean(age, na.rm = TRUE)))
+```
+
+## Question 4
+
+**For each of joy, despair and meh, which candy bar received the most of these ratings**
+
+Assuming this means - which candy received highest number of joy ratings etc. 
+
+```{r}
+candy %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~sum(.x == "JOY")))
+
+
+
+candy %>% 
+  select(abstained_from_m_and_m_ing) %>% 
+  group_by(abstained_from_m_and_m_ing) %>% 
+  summarise(count = n())
+
+
+candy %>% 
+  group_by(abstained_from_m_and_m_ing)
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ n()
+  )
+  )
+
+
+  
+  
+  
+
+```
+
+## Question 5
+
+**How many people rated Starburst as despair?**
+
+```{r}
+candy %>% 
+  group_by(starburst) %>% 
+  summarise(count = n())
 ```
 

@@ -167,6 +167,7 @@ all_candy <- all_candy %>%
 # No nulls present. 
 # Convert column to integer. 
 # Unlikely anyone over 110 filled in survey. Convert ages above 110 to NAs.
+# 3 people aged zero or 1 filled in survey, seems unlikely but perhaps there are some babies with strong opinions about sweets out there. Left this data as it was.
 # So many NAs (477) that decided not to impute them.
 
 all_candy <- all_candy %>%
