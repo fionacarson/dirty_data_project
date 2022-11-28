@@ -98,14 +98,14 @@ candy2017 <- candy2017 %>%
 # Use full join, there should be no matching rows as the year will always be different. 
 
 # Checking how many columns are in 2016 but not 2015
-setdiff(names(candy2016), names(candy2015))
+# setdiff(names(candy2016), names(candy2015))
 # 22 columns only in 2016
 
 # Expect 6889 (5630 + 1259) rows and 122 columns in all_candy
 all_candy <- full_join(candy2015, candy2016)
 
 # Now add 2017 data to all_candy
-setdiff(names(candy2017), names(all_candy))
+# setdiff(names(candy2017), names(all_candy))
 # 7 columns in 2017 but not all_candy
 
 # Expect 9349 (6889 + 2460) rows and 129 columns
@@ -118,22 +118,43 @@ all_candy <- all_candy %>%
   select(sort(names(.))) %>% 
   relocate("year", "age", "going_out", "gender", "country", everything())
 
-# Read through column names, identified and fixed issues
 
-# abstain from m and m 
-# brown glob
-# bonkers
-# box o raisins
+
+
+# Read through column names, identified and fixed issues for following columns:
+#   abstain from m and m 
+#   brown globs and maryjanes
+#   bonkers
+#   box o raisins
+#   hersheys - (dark chocolate and kisses)
+#   m and ms
+#   sweetums
 
 
 all_candy2 <- all_candy %>% 
   rename(abstained_from_m_and_m_ing = abstained_from_m_ming) %>% 
-# there are 3 columns which may be related. In 2015 and 2016 we have 1) anonymous brown globs that come in black and orange wrappers and 2) mary janes. In 2017 we have - anonymous brown globs that come in black and orange wrappers aka mary janes. Decision made to combine the columns which say "mary jane".
-    unite(mary_janes, c(anonymous_brown_globs_that_come_in_black_and_orange_wrappers_a_k_a_mary_janes, mary_janes))
+# there are 3 columns which may be related. In 2015 and 2016 we have 1) anonymous brown globs that come in black and orange wrappers and 2) mary janes. In 2017 we have - anonymous brown globs that come in black and orange wrappers aka mary janes. Decision made to combine the columns which say have "mary jane" in name. Also an internet search shows that Mary Jane sweets have the name on the wrapper so they are unlikely to be anonymous brown blobs. 
+  mutate(mary_janes = coalesce(anonymous_brown_globs_that_come_in_black_and_orange_wrappers_a_k_a_mary_janes, mary_janes)) %>% 
+  select(-anonymous_brown_globs_that_come_in_black_and_orange_wrappers_a_k_a_mary_janes) %>% 
+# In 2017 the bonkers column was split into 'bonkers the candy' and 'bonkers the board game'. Combine 'bonkers the candy' with other bonkers data from 2015 adn 2016 and remove the 'bonkers the candy column. 
+  mutate(bonkers = coalesce(bonkers, bonkers_the_candy)) %>% 
+  select(-bonkers_the_candy) %>% 
+# box-o-raisins columns spelt differently, these were combined
+  mutate(box_o_raisins = coalesce(box_o_raisins, boxo_raisins)) %>% 
+  select(-boxo_raisins) %>% 
+# combine the two dark chocolate hershey columns
   
 
-mary_janes <- all_candy %>% 
-  select(1,7,8,69)
+
+
+
+hersheys <- all_candy %>% 
+  select()
+
+
+
+
+
 
 
 # AGE
