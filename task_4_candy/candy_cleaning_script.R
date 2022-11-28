@@ -1,3 +1,4 @@
+# Loading ibraries and reading data ----
 library(tidyverse)
 library(readxl)
 
@@ -6,7 +7,9 @@ candy2015 <- read_excel("raw_data/boing-boing-candy-2015.xlsx")
 candy2016 <- read_excel("raw_data/boing-boing-candy-2016.xlsx")
 candy2017 <- read_excel("raw_data/boing-boing-candy-2017.xlsx")
 
-# Initial clean of column names
+
+# Cleaning column names ----
+
 candy2015 <- janitor::clean_names(candy2015)
 candy2016 <- janitor::clean_names(candy2016)
 candy2017 <- janitor::clean_names(candy2017)
@@ -20,9 +23,6 @@ candy2017 <- janitor::clean_names(candy2017)
 #     gender
 #     country
 #     all candy columns
-
-
-
 
 # 2015
 candy2015 <- candy2015 %>% 
@@ -66,8 +66,6 @@ names(candy2017) <- sub('^q6_', '', names(candy2017))
 candy2017 <- candy2017 %>% 
   rename(x100_grand_bar = `100_grand_bar`)
 
-
-
 # Sort all columns alphabetically, then move 5 non-candy columns to start
 
 # MAKE THIS A FUNCTION
@@ -95,11 +93,12 @@ candy2017 <- candy2017 %>%
 #arrange_columns(candy2017)
 
 
-# Joining datasets
+# Joining datasets ----
+
 # Use full join, there should be no matching rows as the year will always be different. 
 
 # Checking how many columns are in 2016 but not 2015
-setdiff(names(candy2015), names(candy2016))
+setdiff(names(candy2016), names(candy2015))
 # 22 columns only in 2016
 
 # Expect 6889 (5630 + 1259) rows and 122 columns in all_candy
@@ -111,6 +110,31 @@ setdiff(names(candy2017), names(all_candy))
 
 # Expect 9349 (6889 + 2460) rows and 129 columns
 all_candy <- full_join(all_candy, candy2017)
+
+#Sorting and fixing columns manually----
+
+# Rerun alphabetising code on full dataset 
+all_candy <- all_candy %>% 
+  select(sort(names(.))) %>% 
+  relocate("year", "age", "going_out", "gender", "country", everything())
+
+# Read through column names, identified and fixed issues
+
+# abstain from m and m 
+# brown glob
+# bonkers
+# box o raisins
+
+
+all_candy2 <- all_candy %>% 
+  rename(abstained_from_m_and_m_ing = abstained_from_m_ming) %>% 
+# there are 3 columns which may be related. In 2015 and 2016 we have 1) anonymous brown globs that come in black and orange wrappers and 2) mary janes. In 2017 we have - anonymous brown globs that come in black and orange wrappers aka mary janes. Decision made to combine the columns which say "mary jane".
+    unite(mary_janes, c(anonymous_brown_globs_that_come_in_black_and_orange_wrappers_a_k_a_mary_janes, mary_janes))
+  
+
+mary_janes <- all_candy %>% 
+  select(1,7,8,69)
+
 
 # AGE
 # No nulls present. Convert column to integer. 
