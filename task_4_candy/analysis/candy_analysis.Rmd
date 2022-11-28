@@ -21,10 +21,36 @@ output:
 
 
 ## Load libraries and import data
+```{r}
+library(tidyverse)
+library(here)
+
+candy <- read_csv(here("clean_data/clean_candy_data.csv"))
+```
 
 
 
 ## Question 1
 
 **What is the total number of candy ratings given across the three years?**
+
+```{r}
+num_ratings_by_column <- candy %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~sum(!is.na(.x)))) %>% 
+  rowSums()
+
+
+```
+
+## Question 2
+
+**What was the average age of people who are going out trick or treating?**
+
+```{r}
+candy %>% 
+  filter(going_out == "Yes") %>% 
+  summarise(avg_age_trick_or_treaters = round(mean(age, na.rm = TRUE)))
+```
 

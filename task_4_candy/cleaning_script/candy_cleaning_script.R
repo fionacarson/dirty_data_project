@@ -161,44 +161,24 @@ all_candy <- all_candy %>%
   select(sort(names(.))) %>% 
   relocate("year", "age", "going_out", "gender", "country", everything())
 
-
-
-
-
-
 # Fixing column contents (non-candy columns)----
 
 ## Age----
-# No nulls present. Convert column to integer. 
+# No nulls present. 
+# Convert column to integer. 
 # Unlikely anyone over 110 filled in survey. Convert ages above 110 to NAs.
+# So many NAs (477) that decided not to impute them.
 
 all_candy <- all_candy %>%
   mutate(age = as.integer(age)) %>% 
   mutate(age = if_else(age > 110 , NA_integer_, age))
 
-students_big %>% 
-  select(ageyears) %>% 
-  mutate(
-    older_than_12 = if_else(ageyears > 12, "Older than 12", "12 or younger")
-  )
 
 ## Going out----
-
-all_candy %>% 
-  group_by(going_out) %>% 
-  summarise(
-    n = n()
-  )
 
 # The going_out column looks fine, it contains yes, no and NA 
 
 ## Gender---- 
-
-all_candy %>% 
-  group_by(gender) %>% 
-  summarise(
-    n = n()
-  )
 
 # five responses for gender which all look fine
 
@@ -214,7 +194,7 @@ all_candy <- all_candy %>%
     country = case_when(
 # US seems to be written in lots and lots of different ways - lets combine
       str_detect(country, "usa|america|merica|murica|amerca|united s|unites s|alaska|california|i pretend to be from canada, but i am really from the united states.|murrika|new jersey|new york|pittsburgh|north carolina|the yoo ess of aaayyyyyy|u s|u s a|u.s.|u.s.a.|unhinged states|unied states|unite states|units states|us of a|ussa|eua") ~ "usa",
-# lots of funny people whose answers need converted to NAs
+# lots of funny, funny people whose answers need converted to NAs
         str_detect(country, "1|30.0|32|35|44.0|45|46|47.0|51.0|54.0|a tropical island south of the equator|atlantis|canae|cascadia|denial|earth|europe|fear and loathing|god's country|i don't know anymore|insanity lately|narnia|neverland|not the usa or canada|one of the best ones|see above|somewhere|soviet canuckistan|subscribe to dm4uz3 on youtube|the republic of cascadia|there isn't one for old men|this one|trumpistan|ud") ~ NA_character_,
       str_detect(country, "scotland|endland|england|u.k.|united kindom|united kingdom") ~ "uk",
       str_detect(country, "brasil") ~ "brazil",
@@ -225,18 +205,11 @@ all_candy <- all_candy %>%
       str_detect(country, "netherlands") ~ "the netherlands", 
       str_detect(country, "^[a]$") ~ NA_character_,
       str_detect(country, "^[u][s]$") ~ "usa",
-# "can" might be canada but no way to be sure so just putting in it with NAs 
+# "can" might be canada but no way to be sure so just putting it in with NAs 
      str_detect(country, "^[c][a][n]$") ~ NA_character_,
       TRUE ~ country
     )
   ) 
-
-      
-all_candy %>% 
-  group_by(country) %>% 
-  summarise(
-    n = n()
-  )
 
 # We've gone from 139 countries to 37 countries - woohoo!  
 
