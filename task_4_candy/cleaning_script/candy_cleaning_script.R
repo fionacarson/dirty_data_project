@@ -1,4 +1,4 @@
-# Loading ibraries and reading data ----
+# Loading libraries and reading data ----
 library(tidyverse)
 library(readxl)
 
@@ -111,6 +111,8 @@ all_candy <- full_join(candy2015, candy2016)
 # Expect 9349 (6889 + 2460) rows and 129 columns
 all_candy <- full_join(all_candy, candy2017)
 
+rm(candy2015, candy2016, candy2017)
+
 #Fixing column names and combining columns----
 
 # Rerun alphabetising code on full dataset 
@@ -168,11 +170,17 @@ all_candy <- all_candy %>%
 
 ## Age----
 # No nulls present. Convert column to integer. 
-# Unlikely anyone under 2 or over 110 filled in survey. Convert ages outside this range to NAs
+# Unlikely anyone over 110 filled in survey. Convert ages above 110 to NAs.
 
 all_candy <- all_candy %>%
   mutate(age = as.integer(age)) %>% 
-  mutate(age = na_if(age, age < 2 | age < 110))
+  mutate(age = if_else(age > 110 , NA_integer_, age))
+
+students_big %>% 
+  select(ageyears) %>% 
+  mutate(
+    older_than_12 = if_else(ageyears > 12, "Older than 12", "12 or younger")
+  )
 
 ## Going out----
 
