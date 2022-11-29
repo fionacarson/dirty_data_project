@@ -151,5 +151,23 @@ Personally I am not a fan of starburst (or Opal Fruits as they were when I was a
 
 ```{r}
 
+# Feel like this could be updated with an if else or case when function
+# these strings shouldn't be picked up by non-candy columns as they are capitalised and the other columns are lower or sentence case. 
+
+candy <- candy %>% 
+  mutate_all(~str_replace(., "JOY", "1")) %>% 
+  mutate_all(~str_replace(., "DESPAIR", "-1")) %>% 
+  mutate_all(~str_replace(., "MEH", "0")) %>% 
+  mutate(across((6:123), as.numeric))
+
+total_scores <- candy %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+  )
+)
+
+
+
 ```
 
