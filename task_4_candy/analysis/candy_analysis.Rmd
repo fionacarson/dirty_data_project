@@ -113,10 +113,24 @@ candy %>%
   )
 
 
+candy %>% 
+  filter(across(
+    .cols = 6:123,
+    ))
   
-  
-  
+results <-  sapply(X = candy[6:123], FUN = table)  
 
+results4 <- as.data.frame(results)
+
+
+results2 <- data.frame(matrix(unlist(results), nrow=118, byrow=FALSE),stringsAsFactors=FALSE)
+
+
+results3 <-  as_tibble(results, .rows = 118, .name_repair = c("DESPAIR", "JOY", "MEH"))
+
+
+
+results2
 ```
 
 ## Question 5
@@ -125,14 +139,17 @@ candy %>%
 
 ```{r}
 candy %>% 
-  group_by(starburst) %>% 
-  summarise(count = n())
-
-
-
-
-candy %>% 
   filter(starburst == "DESPAIR") %>% 
-  nrow()
+  summarise(starburst_as_despair = n())
+```
+Personally I am not a fan of starburst (or Opal Fruits as they were when I was a kid) so I feel this number should be higher!
+
+
+## Question 6
+
+**What was the most popular candy bar by the -1, 0, 1 rating system for each gender in the dataset**
+
+```{r}
+
 ```
 
