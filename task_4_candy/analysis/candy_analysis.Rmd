@@ -150,9 +150,7 @@ Personally I am not a fan of starburst (or Opal Fruits as they were when I was a
 **What was the most popular candy bar by the -1, 0, 1 rating system for each gender in the dataset**
 
 ```{r}
-
-# Feel like this could be updated with an if else or case when function
-# these strings won't be picked up by non-candy columns as they are capitalised and the other columns are lower or sentence case. 
+# These JOY, DESPAIR, MEH strings won't be identified in the non-candy columns (e.g. if "meh" was part of a country name) as they are capitalised and the other columns are lower or sentence case. 
 
 candy <- candy %>% 
   mutate_all(~str_replace(., "JOY", "1")) %>% 
@@ -160,64 +158,49 @@ candy <- candy %>%
   mutate_all(~str_replace(., "MEH", "0")) %>% 
   mutate(across((6:123), as.numeric))
 
+# remove this once cleaning script has been rerun and analysis data reloaded
 candy$gender <- str_to_lower(candy$gender)
 
-total_scores <- candy %>% 
-  filter(gender == "female") %>% 
-  summarise(across(
-    .cols = 6:123,
-    .fns = ~ sum(., na.rm = TRUE)
-  )
-)
 
+# The function below filters by gender, then sums each of the columns
+# The results are converted into a dataframe, transposed and filtered to reveal the top scoring candy. 
 
-gender_score <- function(dataset, gender2){
-# gender options are : female, male, i'd rather not say, other
+high_score_by_gender <- function(dataset, sex){
+# sex options are : female, male, i'd rather not say, other
   gender_results <- dataset %>% 
-  filter(gender == gender2) %>% 
+  filter(gender == sex) %>% 
   summarise(across(
     .cols = 6:123,
     .fns = ~ sum(., na.rm = TRUE)
+    )
   )
-)
+ 
+  gender_results <- as.data.frame(t(gender_results)) %>% 
+  rownames_to_column() %>% 
+  cbind(sex) %>% 
+  rename(score = V1, sweet = rowname, gender = sex) %>% 
+  relocate(gender, .before = sweet) %>% 
+  filter(score == max(score))
+  
   gender_results
 }
 
-
-gender_score(candy, "i'd rather not say")
-
-
-
-
-
-
-candy %>% 
-  group_by(gender) %>% 
-  summarise(n())
-
-```
-
-
-
-
-```{r}
-total_scores <- candy %>% 
-  filter(gender == "female") %>% 
-  summarise(across(
-    .cols = 6:123,
-    .fns = ~ sum(., na.rm = TRUE)
-  )
+# Creating empty dataframe 
+most_popular_candy_by_gender <- data.frame(
+  gender = as.character(),
+  sweets = as.character(),
+  score = as.numeric()
 )
 
 
-total_scores2 <- as.data.frame(t(total_scores)) %>% 
-  rownames_to_column()
+most_popular_candy_by_gender %>% 
+  rbind(high_score_by_gender(candy, "female"), high_score_by_gender(candy, "male"), 
+        high_score_by_gender(candy, "i'd rather not say"), high_score_by_gender(candy, "other"))
 
-total_scores2 %>% 
-  filter(V1 == max(V1))
-  
-  
-  
-
+           
+# should i care that it asks for the most popular candy bar and there are lots of things in the dataset that aren't candy bars?
 ```
+
+
+
 
