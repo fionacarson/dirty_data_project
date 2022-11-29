@@ -152,7 +152,7 @@ Personally I am not a fan of starburst (or Opal Fruits as they were when I was a
 ```{r}
 
 # Feel like this could be updated with an if else or case when function
-# these strings shouldn't be picked up by non-candy columns as they are capitalised and the other columns are lower or sentence case. 
+# these strings won't be picked up by non-candy columns as they are capitalised and the other columns are lower or sentence case. 
 
 candy <- candy %>% 
   mutate_all(~str_replace(., "JOY", "1")) %>% 
@@ -160,7 +160,10 @@ candy <- candy %>%
   mutate_all(~str_replace(., "MEH", "0")) %>% 
   mutate(across((6:123), as.numeric))
 
+candy$gender <- str_to_lower(candy$gender)
+
 total_scores <- candy %>% 
+  filter(gender == "female") %>% 
   summarise(across(
     .cols = 6:123,
     .fns = ~ sum(., na.rm = TRUE)
@@ -168,6 +171,53 @@ total_scores <- candy %>%
 )
 
 
+gender_score <- function(dataset, gender2){
+# gender options are : female, male, i'd rather not say, other
+  gender_results <- dataset %>% 
+  filter(gender == gender2) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+  )
+)
+  gender_results
+}
+
+
+gender_score(candy, "i'd rather not say")
+
+
+
+
+
+
+candy %>% 
+  group_by(gender) %>% 
+  summarise(n())
+
+```
+
+
+
+
+```{r}
+total_scores <- candy %>% 
+  filter(gender == "female") %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+  )
+)
+
+
+total_scores2 <- as.data.frame(t(total_scores)) %>% 
+  rownames_to_column()
+
+total_scores2 %>% 
+  filter(V1 == max(V1))
+  
+  
+  
 
 ```
 

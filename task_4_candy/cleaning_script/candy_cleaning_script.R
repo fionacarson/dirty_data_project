@@ -182,6 +182,10 @@ all_candy <- all_candy %>%
 ## Gender---- 
 
 # five responses for gender which all look fine
+# convert to lowercase to help any analysis
+
+all_candy$gender <- str_to_lower(all_candy$gender)
+
 
 ## Country----
 # ok its the big one - how to fix this mess?!
