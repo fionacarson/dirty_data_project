@@ -41,9 +41,15 @@ candy %>%
     .fns = ~sum(!is.na(.x)))) %>% 
   rowSums()
 
-
+# Code to check answer
+# sum(is.na(candy[6:123]))
 ```
+There were 772,352 candy ratings given across the three years. 
 
+To check this number the number of NAs was determined and subtracted from the total number of entries. 
+118 candy columns *  9349 rows = 1,103,182 entries
+Missing values (NAs) = 330830
+1,103,183 - 330,830 = 772,352 which is our original answer!
 
 
 ## Question 2
@@ -55,6 +61,7 @@ candy %>%
   filter(going_out == "Yes") %>% 
   summarise(avg_age_trick_or_treaters = round(mean(age, na.rm = TRUE)))
 ```
+The average age of trick or treaters is 35 which seems rather high. Perhaps this is parents who are going out with their children. 
 
 ## Question 3
 
@@ -65,18 +72,30 @@ candy %>%
   filter(going_out == "No") %>% 
   summarise(avg_age_trick_or_treaters = round(mean(age, na.rm = TRUE)))
 ```
+The average age of people not going out trick or treating was 39. I can't think of anything interesting to say about this answer, feel like this might be wrong or I'm missing something. 
+
 
 ## Question 4
 
 **For each of joy, despair and meh, which candy bar received the most of these ratings**
 
-Assuming this means - which candy received highest number of joy ratings etc. 
+Assumption -  this means which candy received highest number of joy ratings, the highest number of meh ratings etc. 
 
 ```{r}
 candy %>% 
   summarise(across(
     .cols = 6:123,
     .fns = ~sum(.x == "JOY")))
+
+
+candy %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~distinct(.x))
+  )
+)      
+   
+
 
 
 
@@ -87,10 +106,9 @@ candy %>%
 
 
 candy %>% 
-  group_by(abstained_from_m_and_m_ing)
   summarise(across(
     .cols = 6:123,
-    .fns = ~ n()
+    .fns = ~ sum(.col = "JOY")
   )
   )
 
@@ -109,5 +127,12 @@ candy %>%
 candy %>% 
   group_by(starburst) %>% 
   summarise(count = n())
+
+
+
+
+candy %>% 
+  filter(starburst == "DESPAIR") %>% 
+  nrow()
 ```
 
