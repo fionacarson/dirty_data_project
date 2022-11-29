@@ -281,6 +281,7 @@ rbind(high_score_by_country(candy, "usa"), high_score_by_country(candy, "canada"
 most_popular_candy_by_country
 
 
+
 ```
 
 ```{r}
@@ -316,9 +317,71 @@ high_score_by_multiple_countries(candy, all_other_countries_vec)
 
 
 
-
 ```
 
 
 
+```{r}
+high_score_by_NA_country <- function(dataset){
+  country_results <- dataset %>% 
+  filter(is.na(country)) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+    )
+  )
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+  country_results <- as.data.frame(t(country_results)) %>% 
+  rownames_to_column() %>% 
+  rename(score = V1, sweet = rowname) %>% 
+  filter(score == max(score))
+  
+  country_results
+}
+
+high_score_by_NA_country(candy)
+```
+
+```{r}
+top_3_by_country <- function(dataset, cntry){
+  top3_country <- dataset %>% 
+  filter(country == cntry) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+    )
+  )
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+  top3_country <- as.data.frame(t(top3_country)) %>% 
+  rownames_to_column() %>% 
+  cbind(cntry) %>% 
+  rename(score = V1, sweet = rowname, country = cntry) %>% 
+  relocate(country, .before = sweet) %>% 
+  arrange(desc(score)) %>% 
+  head(3)
+    
+    #filter(score == slice_max(score, 3))
+  
+  top3_country
+}
+
+# Creating empty dataframe 
+top3_candies_by_country <- data.frame(
+  country = as.character(),
+  sweets = as.character(),
+  score = as.numeric()
+  ) 
+
+# Adding results from running the function with countries to dataframe
+top3_candies_by_country <- top3_candies_by_country %>% 
+rbind(top_3_by_country(candy, "usa"), top_3_by_country(candy, "canada"), 
+        top_3_by_country(candy, "uk"))
+
+top3_candies_by_country
+
+
+top_3_by_country(candy, "uk")
+
+# Would be nice to add a rank but I'm done
+```
 
