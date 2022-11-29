@@ -8,6 +8,9 @@ output:
     highlight: tango
     df_print: paged
 ---
+```{r}
+
+```
 
 ## Introduction
 
@@ -147,7 +150,7 @@ Personally I am not a fan of starburst (or Opal Fruits as they were when I was a
 
 ## Question 6
 
-**What was the most popular candy bar by the -1, 0, 1 rating system for each gender in the dataset**
+**What was the most popular candy bar by the -1, 0, 1 rating system for each gender in the dataset?**
 
 ```{r}
 # These JOY, DESPAIR, MEH strings won't be identified in the non-candy columns (e.g. if "meh" was part of a country name) as they are capitalised and the other columns are lower or sentence case. 
@@ -166,7 +169,7 @@ candy$gender <- str_to_lower(candy$gender)
 # The results are converted into a dataframe, transposed and filtered to reveal the top scoring candy. 
 
 high_score_by_gender <- function(dataset, sex){
-# sex options are : female, male, i'd rather not say, other
+# sex options are: female, male, i'd rather not say, other
   gender_results <- dataset %>% 
   filter(gender == sex) %>% 
   summarise(across(
@@ -190,15 +193,130 @@ most_popular_candy_by_gender <- data.frame(
   gender = as.character(),
   sweets = as.character(),
   score = as.numeric()
-)
-
-
-most_popular_candy_by_gender %>% 
-  rbind(high_score_by_gender(candy, "female"), high_score_by_gender(candy, "male"), 
+  ) %>% 
+# Adding results from running the function with each gender to dataframe
+    rbind(high_score_by_gender(candy, "female"), high_score_by_gender(candy, "male"), 
         high_score_by_gender(candy, "i'd rather not say"), high_score_by_gender(candy, "other"))
 
+most_popular_candy_by_gender
            
 # should i care that it asks for the most popular candy bar and there are lots of things in the dataset that aren't candy bars?
+```
+
+## Question 7
+
+**What was the most popular candy bar in each year?**
+
+```{r}
+high_score_by_year <- function(dataset, yr){
+# year options are: 2015, 2016 and 2017
+  year_results <- dataset %>% 
+  filter(year == yr) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+    )
+  )
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+  year_results <- as.data.frame(t(year_results)) %>% 
+  rownames_to_column() %>% 
+  cbind(yr) %>% 
+  rename(score = V1, sweet = rowname, year = yr) %>% 
+  relocate(year, .before = sweet) %>% 
+  filter(score == max(score))
+  
+  year_results
+}
+
+# Creating empty dataframe 
+most_popular_candy_by_year <- data.frame(
+  year = as.numeric(),
+  sweets = as.character(),
+  score = as.numeric()
+  ) %>% 
+# Adding results from running the function with each year to dataframe
+    rbind(high_score_by_year(candy, 2015), high_score_by_year(candy, 2016), 
+        high_score_by_year(candy, 2017))
+
+most_popular_candy_by_year
+```
+
+
+## Question 8
+
+**What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries**
+
+```{r}
+high_score_by_country <- function(dataset, cntry){
+  country_results <- dataset %>% 
+  filter(country == cntry) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+    )
+  )
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+  country_results <- as.data.frame(t(country_results)) %>% 
+  rownames_to_column() %>% 
+  cbind(cntry) %>% 
+  rename(score = V1, sweet = rowname, country = cntry) %>% 
+  relocate(country, .before = sweet) %>% 
+  filter(score == max(score))
+  
+  country_results
+}
+
+# Creating empty dataframe 
+most_popular_candy_by_country <- data.frame(
+  country = as.character(),
+  sweets = as.character(),
+  score = as.numeric()
+  ) 
+
+# Adding results from running the function with countries to dataframe
+most_popular_candy_by_country <- most_popular_candy_by_country %>% 
+rbind(high_score_by_country(candy, "usa"), high_score_by_country(candy, "canada"), 
+        high_score_by_country(candy, "uk"))
+
+most_popular_candy_by_country
+
+
+```
+
+```{r}
+# Creating a dataframe of countries other than US, UK and Canada
+all_other_countries_df <- candy %>% 
+  filter(!country %in% c("usa", "canada", "uk")) %>% 
+  filter(!is.na(country))
+
+all_other_countries_vec <- all_other_countries_df$country
+
+
+high_score_by_multiple_countries <- function(dataset, cntry){
+  country_results <- dataset %>% 
+  filter(country == cntry) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+    )
+  )
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+  country_results <- as.data.frame(t(country_results)) %>% 
+  rownames_to_column() %>% 
+  rename(score = V1, sweet = rowname) %>% 
+  filter(score == max(score))
+  
+  country_results
+}
+
+high_score_by_multiple_countries(candy, all_other_countries_vec)
+
+
+
+
+
+
+
 ```
 
 
