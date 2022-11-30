@@ -15,13 +15,17 @@ The original csv file required extensive cleaning and the main steps conducted a
 
 
 ## Assumptions
+Assumptions have been made which are specific to the questions asked. These are detailed below as part of the relevant answers.
+
+When I refer to "candy columns" I mean any column which contains the Joy, Despair, Meh rating. "Non-candy columns" are year, age, gender, country and going out. 
+
 A lot of columns were removed, these were columns which weren't required to answer the analysis questions. 
 
 1. The timestamp column would not be required and was converted to a year column. 
 2. The columns containing data on degrees of separation would not be required and were therefore removed. 
 4. Other columns which didn't have the joy, despair rating used were removed e.g. "What is your favourite font?" and "Which day of the week do you prefer?". 
 3. All the analysis questions are about candy so I thought about removing columns for items that aren't candy (DVDs, pharmaceuticals, glow sticks) but decided it would be more interesting to keep them in. 
-4. The state_province_county column was removed from 2016 and 2017 data as its not required to answer the analysis questions and 
+4. The state_province_county column was removed from 2016 and 2017 data as its not required to answer the analysis questions 
 5. Internal id removed from 2017 data. 
 
 
@@ -30,12 +34,12 @@ A lot of columns were removed, these were columns which weren't required to answ
 For full details see cleaning script comments. A summary of the main cleaning steps is provided here:
 
 - tidied up column names (using janitor package and manually)
-- ensured the non-candy columns (age, gender etc) were the same across the 3 original datasets to allow joining
+- ensured the non-candy columns (age, gender etc) were called the same across the 3 original datasets to allow joining
 - joined the three datasets into one using full_join
-- combined columns which belonged together but were given different names in different years
+- combined candy columns which belonged together but were given different names in different years
 - converted age column to integer and set a realistic age range
 - used case_when and str_detect to fix country column 
-- admired my beautiful clean dataset
+- stood back and admired my beautiful clean dataset
 
 
 
@@ -66,8 +70,11 @@ candy %>%
 There were 772,352 candy ratings given across the three years. 
 
 To check this number the number of NAs was determined and subtracted from the total number of entries. 
+
 118 candy columns *  9349 rows = 1,103,182 entries
+
 Missing values (NAs) = 330830
+
 1,103,183 - 330,830 = 772,352 which is our original answer!
 
 
@@ -122,10 +129,9 @@ candy %>%
   filter(rating == "MEH") %>% 
   summarise(total_ratings = n()) %>% 
   filter(total_ratings == max(total_ratings))
-
-
 ```
 I wasted an extremely long time on this question by trying to answer it without pivoting :(
+
 Any full sized candy bar brings the most joy, while broken glow stick bring the most despair which isn't that surprising. Lollipops get the highest meh rating which was a little surprising, I would have thought they would have been more popular. 
 
 
@@ -144,5 +150,285 @@ Personally I am not a fan of starburst (or Opal Fruits as they were when I was a
 
 ## Question 6
 
-**What was the most popular candy bar by the -1, 0, 1 rating system for each gender in the dataset?**
+I realise now I could have very easily answered this question by using pivot_longer but I love my function and it took me ages so I've left it in. It also displays all the results together in a nice dataframe. 
+The code to answer this question using pivot_longer can be found in the Extra Analysis section at the end of the document. 
+
+```{r}
+# These JOY, DESPAIR, MEH strings won't be identified in the non-candy columns (e.g. if "meh" was part of a country name) as they are capitalised and the other columns are lower or sentence case. 
+
+candy_num_ratings <- candy %>% 
+  mutate_all(~str_replace(., "JOY", "1")) %>% 
+  mutate_all(~str_replace(., "DESPAIR", "-1")) %>% 
+  mutate_all(~str_replace(., "MEH", "0")) %>% 
+  mutate(across((6:123), as.numeric))
+
+# The function below filters by gender, then sums each of the columns
+# The results are converted into a dataframe, transposed and filtered to reveal the top scoring candy. 
+
+high_score_by_gender <- function(dataset, sex){
+# sex options are: female, male, i'd rather not say, other
+  gender_results <- dataset %>% 
+  filter(gender == sex) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+    )
+  )
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate  
+  gender_results <- as.data.frame(t(gender_results)) %>% 
+  rownames_to_column() %>% 
+  cbind(sex) %>% 
+  rename(score = V1, sweet = rowname, gender = sex) %>% 
+  relocate(gender, .before = sweet) %>% 
+  filter(score == max(score))
+  
+  gender_results
+}
+
+# Creating empty dataframe 
+most_popular_candy_by_gender <- data.frame(
+  gender = as.character(),
+  sweets = as.character(),
+  score = as.numeric()
+  ) %>% 
+# Adding results from running the function with each gender to dataframe
+    rbind(high_score_by_gender(candy_num_ratings, "female"), high_score_by_gender(candy_num_ratings, "male"), 
+        high_score_by_gender(candy_num_ratings, "i'd rather not say"), high_score_by_gender(candy_num_ratings, "other"))
+
+most_popular_candy_by_gender
+           
+```
+
+As for the results, nothing interesting here, full sized candy bars popular across all genders. 
+
+## Question 7
+
+**What was the most popular candy bar in each year?**
+
+I adapted my beautiful function to work with year, again pivot_longer would have provided a much quicker and easier answer. 
+
+```{r}
+high_score_by_year <- function(dataset, yr){
+# year options are: 2015, 2016 and 2017
+  year_results <- dataset %>% 
+  filter(year == yr) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+    )
+  )
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+  year_results <- as.data.frame(t(year_results)) %>% 
+  rownames_to_column() %>% 
+  cbind(yr) %>% 
+  rename(score = V1, sweet = rowname, year = yr) %>% 
+  relocate(year, .before = sweet) %>% 
+  filter(score == max(score))
+  
+  year_results
+}
+
+# Creating empty dataframe 
+most_popular_candy_by_year <- data.frame(
+  year = as.numeric(),
+  sweets = as.character(),
+  score = as.numeric()
+  ) %>% 
+# Adding results from running the function with each year to dataframe
+    rbind(high_score_by_year(candy_num_ratings, 2015),              high_score_by_year(candy_num_ratings, 2016), 
+        high_score_by_year(candy_num_ratings, 2017))
+
+most_popular_candy_by_year
+```
+
+Full sized candy bars proving popular across the years. 
+
+
+## Question 8
+
+**What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries**
+
+### USA, UK and Canada
+```{r}
+high_score_by_country <- function(dataset, cntry){
+  country_results <- dataset %>% 
+  filter(country == cntry) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+    )
+  )
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+  country_results <- as.data.frame(t(country_results)) %>% 
+  rownames_to_column() %>% 
+  cbind(cntry) %>% 
+  rename(score = V1, sweet = rowname, country = cntry) %>% 
+  relocate(country, .before = sweet) %>% 
+  filter(score == max(score))
+  
+  country_results
+}
+
+# Creating empty dataframe 
+most_popular_candy_by_country <- data.frame(
+  country = as.character(),
+  sweets = as.character(),
+  score = as.numeric()
+  ) 
+
+# Adding results from running the function with countries to dataframe
+most_popular_candy_by_country <- most_popular_candy_by_country %>% 
+rbind(high_score_by_country(candy_num_ratings, "usa"), high_score_by_country(candy_num_ratings, "canada"), 
+        high_score_by_country(candy_num_ratings, "uk"))
+
+most_popular_candy_by_country
+```
+
+In the UK cash rules, here cash is rated higher than the full sized candy bar. 
+
+### All Other Countries
+
+I spent a very, very long time try to get the function to take in a vector of countries as an argument. I added an if else statement at the cbind() line which worked on length of the cntry argument but ran into errors. I understood why I was getting the error but didn't manage to fix it. 
+
+The code for "all other countries" is below. 
+
+
+```{r}
+# Creating a dataframe of countries other than US, UK and Canada
+all_other_countries_df <- candy %>% 
+  filter(!country %in% c("usa", "canada", "uk")) %>% 
+  filter(!is.na(country))
+# Extracting countries into a vector
+all_other_countries_vec <- all_other_countries_df$country
+
+
+high_score_by_multiple_countries <- function(dataset, cntry){
+  country_results <- dataset %>% 
+  filter(country == cntry) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+    )
+  )
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+  country_results <- as.data.frame(t(country_results)) %>% 
+  rownames_to_column() %>% 
+  rename(score = V1, sweet = rowname) %>% 
+  filter(score == max(score))
+  
+  country_results
+}
+
+high_score_by_multiple_countries(candy_num_ratings, all_other_countries_vec)
+```
+
+There is a draw for the most popular candy in all other countries. These numbers seem low. If I have time I'll go back and check them. 
+
+### NA
+
+For completeness I adapted the function slightly to determine the top rated candy for when country is NA. The results were surprising!
+
+```{r}
+high_score_by_NA_country <- function(dataset){
+  country_results <- dataset %>% 
+  filter(is.na(country)) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+    )
+  )
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+  country_results <- as.data.frame(t(country_results)) %>% 
+  rownames_to_column() %>% 
+  rename(score = V1, sweet = rowname) %>% 
+  filter(score == max(score))
+  
+  country_results
+}
+
+high_score_by_NA_country(candy_num_ratings)
+```
+
+
+Just kidding - no surprises here. Full sized candy bars are top again. 
+
+
+## Extra analysis 
+
+**Question 6 What was the most popular candy bar by the -1, 0, 1 rating system for each gender in the dataset?**
+
+This is the code for answering question 6 by using pivot_longer. 
+
+```{r}
+# These JOY, DESPAIR, MEH strings won't be identified in the non-candy columns (e.g. if "meh" was part of a country name) as they are capitalised and the other columns are lower or sentence case. 
+candy_num_ratings <- candy %>% 
+  mutate_all(~str_replace(., "JOY", "1")) %>% 
+  mutate_all(~str_replace(., "DESPAIR", "-1")) %>% 
+  mutate_all(~str_replace(., "MEH", "0")) %>% 
+  mutate(across((6:123), as.numeric))
+
+candy_num_ratings %>% 
+  pivot_longer(cols = 6:123, names_to = "candy", values_to = "rating") %>% 
+  filter(gender == "female") %>% 
+  group_by(candy) %>% 
+  summarise(total_ratings = sum(rating, na.rm = TRUE)) %>% 
+  filter(total_ratings == max(total_ratings))
+```
+
+
+
+
+
+**Investigating top 3 candy's by country**
+
+I thought it would be interesting to see the top 3 rated candies to see if full size candy bars rated highly in UK and whether cash rated highly in UK or Canada. 
+
+```{r}
+top_3_by_country <- function(dataset, cntry){
+  top3_country <- dataset %>% 
+  filter(country == cntry) %>% 
+  summarise(across(
+    .cols = 6:123,
+    .fns = ~ sum(., na.rm = TRUE)
+    )
+  )
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+  top3_country <- as.data.frame(t(top3_country)) %>% 
+  rownames_to_column() %>% 
+  cbind(cntry) %>% 
+  rename(score = V1, sweet = rowname, country = cntry) %>% 
+  relocate(country, .before = sweet) %>% 
+  arrange(desc(score)) %>% 
+  head(3)
+    
+    #filter(score == slice_max(score, 3))
+  
+  top3_country
+}
+
+# Creating empty dataframe 
+top3_candies_by_country <- data.frame(
+  country = as.character(),
+  sweets = as.character(),
+  score = as.numeric()
+  ) 
+
+# Adding results from running the function with countries to dataframe
+top3_candies_by_country <- top3_candies_by_country %>% 
+rbind(top_3_by_country(candy_num_ratings, "usa"), top_3_by_country(candy_num_ratings, "canada"), 
+        top_3_by_country(candy_num_ratings, "uk"))
+
+top3_candies_by_country
+
+# Would be nice to add a rank but I'm done
+```
+
+
+
+
+
+
+
+
+
 
