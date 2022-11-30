@@ -155,7 +155,9 @@ The code to answer this question using pivot_longer can be found in the Extra An
 
 ```{r}
 # Converting JOY to 1, DESPAIR to -1 and MEH to O
-# These JOY, DESPAIR, MEH strings won't be identified in the non-candy columns (e.g. if "meh" was part of a country name) as they are capitalised and the other columns are lower or sentence case. 
+# These JOY, DESPAIR, MEH strings won't be identified in the non-candy columns 
+# (e.g. if "meh" was part of a country name) as they are capitalised and the 
+# other columns are lower or sentence case. 
 
 candy_num_ratings <- candy %>% 
   mutate_all(~str_replace(., "JOY", "1")) %>% 
@@ -164,7 +166,8 @@ candy_num_ratings <- candy %>%
   mutate(across((6:123), as.numeric))
 
 # The function below filters by gender, then sums each of the columns
-# The results are converted into a dataframe, transposed and filtered to reveal the top scoring candy. 
+# The results are converted into a dataframe, transposed and filtered to reveal 
+# the top scoring candy. 
 
 high_score_by_gender <- function(dataset, sex){
 # sex options are: female, male, i'd rather not say, other
@@ -175,7 +178,8 @@ high_score_by_gender <- function(dataset, sex){
     .fns = ~ sum(., na.rm = TRUE)
     )
   )
-# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate  
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function 
+# to work so left the above and below code separate  
   gender_results <- as.data.frame(t(gender_results)) %>% 
   rownames_to_column() %>% 
   cbind(sex) %>% 
@@ -187,12 +191,14 @@ high_score_by_gender <- function(dataset, sex){
 }
 
 # Running function on each of the genders and binding results together for output
-rbind(high_score_by_gender(candy_num_ratings, "female"), high_score_by_gender(candy_num_ratings, "male"), 
-        high_score_by_gender(candy_num_ratings, "i'd rather not say"), high_score_by_gender(candy_num_ratings, "other"))
+rbind(high_score_by_gender(candy_num_ratings, "female"), 
+      high_score_by_gender(candy_num_ratings, "male"), 
+      high_score_by_gender(candy_num_ratings, "i'd rather not say"), 
+      high_score_by_gender(candy_num_ratings, "other"))
 
 ```
 
-As for the results, nothing interesting here, full sized candy bars popular across all genders. 
+As for the results, nothing interesting here, full sized candy bars popular across all genders.
 
 ## Question 7
 
@@ -210,7 +216,8 @@ high_score_by_year <- function(dataset, yr){
     .fns = ~ sum(., na.rm = TRUE)
     )
   )
-# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function 
+# to work so left the above and below code separate 
   year_results <- as.data.frame(t(year_results)) %>% 
   rownames_to_column() %>% 
   cbind(yr) %>% 
@@ -222,8 +229,9 @@ high_score_by_year <- function(dataset, yr){
 }
 
 # Running function on each of the 3 years and binding results together for output
-rbind(high_score_by_year(candy_num_ratings, 2015),                     high_score_by_year(candy_num_ratings, 2016), 
-        high_score_by_year(candy_num_ratings, 2017))
+rbind(high_score_by_year(candy_num_ratings, 2015),                     
+      high_score_by_year(candy_num_ratings, 2016), 
+      high_score_by_year(candy_num_ratings, 2017))
 ```
 
 Full sized candy bars proving popular across the years. 
@@ -243,7 +251,8 @@ high_score_by_country <- function(dataset, cntry){
     .fns = ~ sum(., na.rm = TRUE)
     )
   )
-# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function 
+# to work so left the above and below code separate 
   country_results <- as.data.frame(t(country_results)) %>% 
   rownames_to_column() %>% 
   cbind(cntry) %>% 
@@ -255,8 +264,9 @@ high_score_by_country <- function(dataset, cntry){
 }
 
 # Running function on USA, Canada and UK and binding results together for output
-rbind(high_score_by_country(candy_num_ratings, "usa"), high_score_by_country(candy_num_ratings, "canada"), 
-        high_score_by_country(candy_num_ratings, "uk"))
+rbind(high_score_by_country(candy_num_ratings, "usa"), 
+      high_score_by_country(candy_num_ratings, "canada"), 
+      high_score_by_country(candy_num_ratings, "uk"))
 ```
 
 In the UK cash rules, here cash is rated higher than the full sized candy bar. 
@@ -285,7 +295,8 @@ high_score_by_multiple_countries <- function(dataset, cntry){
     .fns = ~ sum(., na.rm = TRUE)
     )
   )
-# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function 
+# to work so left the above and below code separate 
   country_results <- as.data.frame(t(country_results)) %>% 
   rownames_to_column() %>% 
   rename(score = V1, sweet = rowname) %>% 
@@ -312,7 +323,8 @@ high_score_by_NA_country <- function(dataset){
     .fns = ~ sum(., na.rm = TRUE)
     )
   )
-# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function 
+# to work so left the above and below code separate 
   country_results <- as.data.frame(t(country_results)) %>% 
   rownames_to_column() %>% 
   rename(score = V1, sweet = rowname) %>% 
@@ -335,7 +347,9 @@ Just kidding - no surprises here. Full sized candy bars are top again.
 This is the code for answering question 6 by using pivot_longer. Could put this  code in a function with column (e.g. country, year or gender) and desired group (e.g. usa, female, 2016) as the arguments and they use it to answer question 6 to 8 but I am done with functions for now. 
 
 ```{r}
-# These JOY, DESPAIR, MEH strings won't be identified in the non-candy columns (e.g. if "meh" was part of a country name) as they are capitalised and the other columns are lower or sentence case. 
+# These JOY, DESPAIR, MEH strings won't be identified in the non-candy columns 
+# (e.g. if "meh" was part of a country name) as they are capitalised and the 
+# other columns are lower or sentence case. 
 candy_num_ratings <- candy %>% 
   mutate_all(~str_replace(., "JOY", "1")) %>% 
   mutate_all(~str_replace(., "DESPAIR", "-1")) %>% 
@@ -364,7 +378,8 @@ top_3_by_country <- function(dataset, cntry){
     .fns = ~ sum(., na.rm = TRUE)
     )
   )
-# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function to work so left the above and below code separate 
+# Tried to keep the pipe going but couldn't get the as.data.frame(t()) function 
+# to work so left the above and below code separate 
   top3_country <- as.data.frame(t(top3_country)) %>% 
   rownames_to_column() %>% 
   cbind(cntry) %>% 
@@ -376,8 +391,9 @@ top_3_by_country <- function(dataset, cntry){
   top3_country
 }
 
-rbind(top_3_by_country(candy_num_ratings, "usa"), top_3_by_country(candy_num_ratings, "canada"), 
-        top_3_by_country(candy_num_ratings, "uk"))
+rbind(top_3_by_country(candy_num_ratings, "usa"), 
+      top_3_by_country(candy_num_ratings, "canada"), 
+      top_3_by_country(candy_num_ratings, "uk"))
 
 # Would be nice to add a rank but I'm done
 ```
