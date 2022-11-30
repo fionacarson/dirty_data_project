@@ -86,55 +86,66 @@ Assumption -  this means which candy received highest number of joy ratings, the
 
 ```{r}
 candy %>% 
-  summarise(across(
-    .cols = 6:123,
-    .fns = ~sum(.x == "JOY")))
-
-
-candy %>% 
-  summarise(across(
-    .cols = 6:123,
-    .fns = ~distinct(.x))
-  )
-)      
-   
+  pivot_longer(cols = 6:123, names_to = "candy", values_to = "rating") %>% 
+  group_by(candy) %>% 
+  filter(rating == "DESPAIR") %>% 
+  summarise(total_ratings = n()) %>% 
+  filter(total_ratings == max(total_ratings))
 
 
 
 
-candy %>% 
-  select(abstained_from_m_and_m_ing) %>% 
-  group_by(abstained_from_m_and_m_ing) %>% 
-  summarise(count = n())
 
 
-candy %>% 
-  summarise(across(
-    .cols = 6:123,
-    .fns = ~ sum(.col = "JOY")
-  )
-  )
 
 
-candy %>% 
-  filter(across(
-    .cols = 6:123,
-    ))
+
+
+highest_num_of_ratings <- function(dataset, JOY_DESPAIR_MEH_NA){
+ 
+    dataset %>% 
+    pivot_longer(cols = 6:123, names_to = "candy", values_to = "rating") %>% 
+    group_by(candy) %>% 
+    filter(rating == JOY_DESPAIR_MEH) %>% 
+    summarise(total_ratings = n()) %>% 
+    filter(total_ratings == max(total_ratings))
+
+}
+
+
+highest_num_of_ratings(candy, "JOY")
+highest_num_of_ratings(candy, "DESPAIR")
+highest_num_of_ratings(candy, "MEH")
+
+
+gender_results <- as.data.frame(t(gender_results)) %>% 
+  rownames_to_column() %>% 
+  cbind(sex) %>% 
+  rename(score = V1, sweet = rowname, gender = sex) %>% 
+  relocate(gender, .before = sweet) %>% 
+  filter(score == max(score))
   
-results <-  sapply(X = candy[6:123], FUN = table)  
+  gender_results
+}
 
-results4 <- as.data.frame(results)
+# Creating empty dataframe 
+most_popular_candy_by_gender <- data.frame(
+  gender = as.character(),
+  sweets = as.character(),
+  score = as.numeric()
+  ) %>% 
+# Adding results from running the function with each gender to dataframe
+    rbind(high_score_by_gender(candy, "female"), high_score_by_gender(candy, "male"), 
+        high_score_by_gender(candy, "i'd rather not say"), high_score_by_gender(candy, "other"))
 
-
-results2 <- data.frame(matrix(unlist(results), nrow=118, byrow=FALSE),stringsAsFactors=FALSE)
-
-
-results3 <-  as_tibble(results, .rows = 118, .name_repair = c("DESPAIR", "JOY", "MEH"))
-
-
-
-results2
 ```
+
+
+
+
+
+
+
 
 ## Question 5
 
