@@ -8,19 +8,35 @@ output:
     highlight: tango
     df_print: paged
 ---
-```{r}
-
-```
 
 ## Introduction
-
+The boing boing candy dataset contains the results of a Halloween candy survey. The data covers three years (2015, 2016 and 2017) and includes information on the person completing the survey, such as age, gender and country. The ratings used were Joy, Despair, Meh or NA for the 2016 and 2017 data; Meh was not an option in 2015. The 2015 data also lacked information on the gender and country of the person completing the survey.
+The original csv file required extensive cleaning and the main steps conducted are summarised below in the cleaning section. 
 
 
 ## Assumptions
+A lot of columns were removed, these were columns which weren't required to answer the analysis questions. 
 
+1. The timestamp column would not be required and was converted to a year column. 
+2. The columns containing data on degrees of separation would not be required and were therefore removed. 
+4. Other columns which didn't have the joy, despair rating used were removed e.g. "What is your favourite font?" and "Which day of the week do you prefer?". 
+3. All the analysis questions are about candy so I thought about removing columns for items that aren't candy (DVDs, pharmaceuticals, glow sticks) but decided it would be more interesting to keep them in. 
+4. The state_province_county column was removed from 2016 and 2017 data as its not required to answer the analysis questions and 
+5. Internal id removed from 2017 data. 
 
 
 ## Cleaning
+
+For full details see cleaning script comments. A summary of the main cleaning steps is provided here:
+
+- tidied up column names (using janitor package and manually)
+- ensured the non-candy columns (age, gender etc) were the same across the 3 original datasets to allow joining
+- joined the three datasets into one using full_join
+- combined columns which belonged together but were given different names in different years
+- converted age column to integer and set a realistic age range
+- used case_when and str_detect to fix country column 
+- admired my beautiful clean dataset
+
 
 
 ## Load libraries and import data
@@ -75,7 +91,7 @@ candy %>%
   filter(going_out == "No") %>% 
   summarise(avg_age_trick_or_treaters = round(mean(age, na.rm = TRUE)))
 ```
-The average age of people not going out trick or treating was 39. I can't think of anything interesting to say about this answer, feel like this might be wrong or I'm missing something. 
+The average age of people not going out trick or treating was 39. I can't think of anything interesting to say about this answer.
 
 
 ## Question 4
@@ -88,18 +104,36 @@ Assumption -  this means which candy received highest number of joy ratings, the
 candy %>% 
   pivot_longer(cols = 6:123, names_to = "candy", values_to = "rating") %>% 
   group_by(candy) %>% 
+  filter(rating == "JOY") %>% 
+  summarise(total_ratings = n()) %>% 
+  filter(total_ratings == max(total_ratings))
+
+candy %>% 
+  pivot_longer(cols = 6:123, names_to = "candy", values_to = "rating") %>% 
+  group_by(candy) %>% 
   filter(rating == "DESPAIR") %>% 
   summarise(total_ratings = n()) %>% 
   filter(total_ratings == max(total_ratings))
 
 
+candy %>% 
+  pivot_longer(cols = 6:123, names_to = "candy", values_to = "rating") %>% 
+  group_by(candy) %>% 
+  filter(rating == "MEH") %>% 
+  summarise(total_ratings = n()) %>% 
+  filter(total_ratings == max(total_ratings))
+
+
+```
+I wasted an extremely long time on this question by trying to answer it without pivoting :(
+Any full sized candy bar brings the most joy, while broken glow stick bring the most despair which isn't that surprising. Lollipops get the highest meh rating which was a little surprising, I would have thought they would have been more popular. 
 
 
 
 
 
 
-
+```{r}
 
 highest_num_of_ratings <- function(dataset, JOY_DESPAIR_MEH_NA){
  
@@ -139,12 +173,6 @@ most_popular_candy_by_gender <- data.frame(
         high_score_by_gender(candy, "i'd rather not say"), high_score_by_gender(candy, "other"))
 
 ```
-
-
-
-
-
-
 
 
 ## Question 5
@@ -211,8 +239,10 @@ most_popular_candy_by_gender <- data.frame(
 
 most_popular_candy_by_gender
            
-# should i care that it asks for the most popular candy bar and there are lots of things in the dataset that aren't candy bars?
 ```
+I realise now I could have very easily answered this question by using pivot_longer but I love my function and it took me ages so I've left it in. It also displays all the results together in a nice dataframe. 
+
+As for the results, nothing interesting here, full sized candy bars popular across all genders. 
 
 ## Question 7
 
@@ -251,6 +281,9 @@ most_popular_candy_by_year <- data.frame(
 
 most_popular_candy_by_year
 ```
+
+I adapted my beautiful function to work with year, again pivot_longer would have provided a much quicker and easier answer. 
+Full sized candy bars proving popular across the years. 
 
 
 ## Question 8
@@ -295,12 +328,17 @@ most_popular_candy_by_country
 
 ```
 
+In the UK cash rules, here cash is rated higher than the full sized candy bar. 
+I spend a very, very long time try to get the function to take in a vector of countries as an argument. I added an if else statement at the cbind() line which worked on length of the cntry argument but ran into errors. I understood why I was getting the error but didn't manage to fix it. The code of "all other countries" is below. 
+
+
+
 ```{r}
 # Creating a dataframe of countries other than US, UK and Canada
 all_other_countries_df <- candy %>% 
   filter(!country %in% c("usa", "canada", "uk")) %>% 
   filter(!is.na(country))
-
+# Extracting countries into a vector
 all_other_countries_vec <- all_other_countries_df$country
 
 
@@ -332,6 +370,10 @@ high_score_by_multiple_countries(candy, all_other_countries_vec)
 
 
 
+
+
+
+
 ```{r}
 high_score_by_NA_country <- function(dataset){
   country_results <- dataset %>% 
@@ -352,6 +394,13 @@ high_score_by_NA_country <- function(dataset){
 
 high_score_by_NA_country(candy)
 ```
+
+
+
+
+
+
+
 
 ```{r}
 top_3_by_country <- function(dataset, cntry){

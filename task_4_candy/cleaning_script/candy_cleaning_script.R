@@ -198,6 +198,7 @@ all_candy <- all_candy %>%
   mutate(
     country = case_when(
 # US seems to be written in lots and lots of different ways - lets combine
+# I considered doing this with regex but it was quicker and easier and likely to result in less mistakes doing it this way.
       str_detect(country, "usa|america|merica|murica|amerca|united s|unites s|alaska|california|i pretend to be from canada, but i am really from the united states.|murrika|new jersey|new york|pittsburgh|north carolina|the yoo ess of aaayyyyyy|u s|u s a|u.s.|u.s.a.|unhinged states|unied states|unite states|units states|us of a|ussa|eua") ~ "usa",
 # lots of funny, funny people whose answers need converted to NAs
         str_detect(country, "1|30.0|32|35|44.0|45|46|47.0|51.0|54.0|a tropical island south of the equator|atlantis|canae|cascadia|denial|earth|europe|fear and loathing|god's country|i don't know anymore|insanity lately|narnia|neverland|not the usa or canada|one of the best ones|see above|somewhere|soviet canuckistan|subscribe to dm4uz3 on youtube|the republic of cascadia|there isn't one for old men|this one|trumpistan|ud") ~ NA_character_,

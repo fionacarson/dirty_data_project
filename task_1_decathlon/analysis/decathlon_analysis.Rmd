@@ -11,17 +11,11 @@ output:
 
 ## Introduction
 
-The decathlon dataset contains the results from each of the 10 events in
-the decathlon. The data covers two competitions - the 2004 Olympic Games
-and the 2004 Decastar competition. The data also includes the place the
-athlete finished ("rank") and their total points. Out of the 13 athletes
-in the Decastar competition only 3 did not compete in the Olympics that
-year. The Olympic field consisted of 28 athletes.
+The decathlon dataset contains the results from each of the 10 events in the decathlon. The data covers two competitions - the 2004 Olympic Games and the 2004 Decastar competition. The data also includes the place the athlete finished ("rank") and their total points. Out of the 13 athletes in the Decastar competition only 3 did not compete in the Olympics that year. The Olympic field consisted of 28 athletes.
 
 ## Assumptions
 
-Assumptions have been made which are specific to the questions asked.
-These are detailed below as part of the relevant answers.
+Assumptions have been made which are specific to the questions asked. These are detailed below as part of the relevant answers.
 
 ## Cleaning
 
@@ -34,8 +28,7 @@ The main steps were:
 -   converting athlete names to lowercase
 -   tidying competition names
 
-As part of the cleaning the data was checked for NAs, NULLs and values
-outwith expected ranges. None were found, the dataset is complete.
+As part of the cleaning the data was checked for NAs, NULLs and values outwith expected ranges. None were found, the dataset is complete.
 
 ## Load libraries and import data
 
@@ -59,9 +52,7 @@ decathlon %>%
   filter(long_jump == max(long_jump))
 ```
 
-Bryan Clay from the US had the longest result for the long jump from the
-data. This jump was at the 2004 Olympic Games and was a personal best at
-the time. Clay went on to win the silver medal in this competition.
+Bryan Clay from the US had the longest result for the long jump from the data. This jump was at the 2004 Olympic Games and was a personal best at the time. Clay went on to win the silver medal in this competition.
 
 ## Question 2
 
@@ -73,19 +64,13 @@ decathlon %>%
   summarise(avg_100m_time = round(mean(x100m), 2))
 ```
 
-The Olympic Games has a faster average time for the 100m than Decastar.
-I don't think this is a surprising result. The Olympics Games is a
-higher profile competition and athletes design four year training
-programs around the Olympic schedule to ensure they peak for this
-competition.
+The Olympic Games has a faster average time for the 100m than Decastar. I don't think this is a surprising result. The Olympics Games is a higher profile competition and athletes design four year training programs around the Olympic schedule to ensure they peak for this competition.
 
 ## Question 3
 
 **Who had the highest total points across both competitions?**
 
-Assumption - highest total points across both competitions means the
-points are summed for each athlete (that competed in both competitions)
-and the athlete with the highest points identified.
+Assumption - highest total points across both competitions means the points are summed for each athlete (that competed in both competitions) and the athlete with the highest points identified.
 
 ```{r}
 decathlon %>% 
@@ -94,9 +79,7 @@ decathlon %>%
   filter(total_points == max(total_points))
 ```
 
-Roman Sebrle, an athlete from the Czech Republic, has the highest total
-points across both competitions. He won the 2004 Olympics and the 2004
-Decastar event so would have the highest points total for each event individually as well.
+Roman Sebrle, an athlete from the Czech Republic, has the highest total points across both competitions. He won the 2004 Olympics and the 2004 Decastar event so would have the highest points total for each event individually as well.
 
 ## Question 4
 
@@ -113,9 +96,7 @@ decathlon %>%
 
 ```
 
-The first, second and third places in both competitions were taken by
-the same men in the same order. The shot-put distances in the Olympics
-are all higher than those thrown in the Decastar competition.
+The first, second and third places in both competitions were taken by the same men in the same order. The shot-put distances in the Olympics are all higher than those thrown in the Decastar competition.
 
 ## Question 5
 
@@ -142,5 +123,4 @@ tibble(
 # Would have liked to conduct this analysis in one piece of code and without creating the variables.
 ```
 
-The athletes who are slower at the 400 m have a lower points average
-than those who are faster.
+The athletes who are slower at the 400 m have a lower points average than those who are faster.
