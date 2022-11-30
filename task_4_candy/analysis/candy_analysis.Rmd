@@ -154,6 +154,7 @@ I realise now I could have very easily answered this question by using pivot_lon
 The code to answer this question using pivot_longer can be found in the Extra Analysis section at the end of the document. 
 
 ```{r}
+# Converting JOY to 1, DESPAIR to -1 and MEH to O
 # These JOY, DESPAIR, MEH strings won't be identified in the non-candy columns (e.g. if "meh" was part of a country name) as they are capitalised and the other columns are lower or sentence case. 
 
 candy_num_ratings <- candy %>% 
@@ -185,18 +186,10 @@ high_score_by_gender <- function(dataset, sex){
   gender_results
 }
 
-# Creating empty dataframe 
-most_popular_candy_by_gender <- data.frame(
-  gender = as.character(),
-  sweets = as.character(),
-  score = as.numeric()
-  ) %>% 
-# Adding results from running the function with each gender to dataframe
-    rbind(high_score_by_gender(candy_num_ratings, "female"), high_score_by_gender(candy_num_ratings, "male"), 
+# Running function on each of the genders and binding results together for output
+rbind(high_score_by_gender(candy_num_ratings, "female"), high_score_by_gender(candy_num_ratings, "male"), 
         high_score_by_gender(candy_num_ratings, "i'd rather not say"), high_score_by_gender(candy_num_ratings, "other"))
 
-most_popular_candy_by_gender
-           
 ```
 
 As for the results, nothing interesting here, full sized candy bars popular across all genders. 
@@ -228,17 +221,9 @@ high_score_by_year <- function(dataset, yr){
   year_results
 }
 
-# Creating empty dataframe 
-most_popular_candy_by_year <- data.frame(
-  year = as.numeric(),
-  sweets = as.character(),
-  score = as.numeric()
-  ) %>% 
-# Adding results from running the function with each year to dataframe
-    rbind(high_score_by_year(candy_num_ratings, 2015),              high_score_by_year(candy_num_ratings, 2016), 
+# Running function on each of the 3 years and binding results together for output
+rbind(high_score_by_year(candy_num_ratings, 2015),                     high_score_by_year(candy_num_ratings, 2016), 
         high_score_by_year(candy_num_ratings, 2017))
-
-most_popular_candy_by_year
 ```
 
 Full sized candy bars proving popular across the years. 
@@ -269,19 +254,9 @@ high_score_by_country <- function(dataset, cntry){
   country_results
 }
 
-# Creating empty dataframe 
-most_popular_candy_by_country <- data.frame(
-  country = as.character(),
-  sweets = as.character(),
-  score = as.numeric()
-  ) 
-
-# Adding results from running the function with countries to dataframe
-most_popular_candy_by_country <- most_popular_candy_by_country %>% 
+# Running function on USA, Canada and UK and binding results together for output
 rbind(high_score_by_country(candy_num_ratings, "usa"), high_score_by_country(candy_num_ratings, "canada"), 
         high_score_by_country(candy_num_ratings, "uk"))
-
-most_popular_candy_by_country
 ```
 
 In the UK cash rules, here cash is rated higher than the full sized candy bar. 
@@ -357,7 +332,7 @@ Just kidding - no surprises here. Full sized candy bars are top again.
 
 **Question 6 What was the most popular candy bar by the -1, 0, 1 rating system for each gender in the dataset?**
 
-This is the code for answering question 6 by using pivot_longer. 
+This is the code for answering question 6 by using pivot_longer. Could put this  code in a function with column (e.g. country, year or gender) and desired group (e.g. usa, female, 2016) as the arguments and they use it to answer question 6 to 8 but I am done with functions for now. 
 
 ```{r}
 # These JOY, DESPAIR, MEH strings won't be identified in the non-candy columns (e.g. if "meh" was part of a country name) as they are capitalised and the other columns are lower or sentence case. 
@@ -374,9 +349,6 @@ candy_num_ratings %>%
   summarise(total_ratings = sum(rating, na.rm = TRUE)) %>% 
   filter(total_ratings == max(total_ratings))
 ```
-
-
-
 
 
 **Investigating top 3 candy's by country**
@@ -401,24 +373,11 @@ top_3_by_country <- function(dataset, cntry){
   arrange(desc(score)) %>% 
   head(3)
     
-    #filter(score == slice_max(score, 3))
-  
   top3_country
 }
 
-# Creating empty dataframe 
-top3_candies_by_country <- data.frame(
-  country = as.character(),
-  sweets = as.character(),
-  score = as.numeric()
-  ) 
-
-# Adding results from running the function with countries to dataframe
-top3_candies_by_country <- top3_candies_by_country %>% 
 rbind(top_3_by_country(candy_num_ratings, "usa"), top_3_by_country(candy_num_ratings, "canada"), 
         top_3_by_country(candy_num_ratings, "uk"))
-
-top3_candies_by_country
 
 # Would be nice to add a rank but I'm done
 ```

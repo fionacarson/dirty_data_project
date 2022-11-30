@@ -66,59 +66,42 @@ names(candy2017) <- sub('^q6_', '', names(candy2017))
 candy2017 <- candy2017 %>% 
   rename(x100_grand_bar = `100_grand_bar`)
 
-# Sort all columns alphabetically, then move 5 non-candy columns to start
+# Created a function to sort columns alphabetically, then move 5 non-candy columns to start
 
-# MAKE THIS A FUNCTION
-candy2015 <- candy2015 %>% 
-  select(sort(names(.))) %>% 
-  relocate("year", "age", "going_out", "gender", "country", everything())
+arrange_columns <- function(dataset){
+  dataset %>% 
+    select(sort(names(.))) %>% 
+    relocate("year", "age", "going_out", "gender", "country", everything())
+}
 
-candy2016 <- candy2016 %>% 
-  select(sort(names(.))) %>% 
-  relocate("year", "age", "going_out", "gender", "country", everything())
-
-candy2017 <- candy2017 %>% 
-  select(sort(names(.))) %>% 
-  relocate("year", "age", "going_out", "gender", "country", everything())
-
-
-# THIS FUNCTION NOT WORKING YET
-#arrange_columns <- function(x) {
-#  x %>%  
-#    select(sort(names(.))) %>% 
-#    relocate("year", "age", "going_out", "gender", "country", everything())
-# return(y)
-#}
-  
-#arrange_columns(candy2017)
-
+candy2015 <- arrange_columns(candy2015)
+candy2016 <- arrange_columns(candy2016)
+candy2017 <- arrange_columns(candy2017)
 
 # Joining datasets ----
 
-# Use full join, there should be no matching rows as the year will always be different. 
+# Use full join, there should be no matching rows between datasets as the year will always be different. 
 
 # Checking how many columns are in 2016 but not 2015
 # setdiff(names(candy2016), names(candy2015))
 # 22 columns only in 2016
 
-# Expect 6889 (5630 + 1259) rows and 122 columns in all_candy
+# Expect 6889 (5630 + 1259) rows and 122 (100 + 22) columns in all_candy
 all_candy <- full_join(candy2015, candy2016)
 
 # Now add 2017 data to all_candy
 # setdiff(names(candy2017), names(all_candy))
 # 7 columns in 2017 but not all_candy
 
-# Expect 9349 (6889 + 2460) rows and 129 columns
+# Expect 9349 (6889 + 2460) rows and 129 (122 + 7) columns
 all_candy <- full_join(all_candy, candy2017)
 
 rm(candy2015, candy2016, candy2017)
 
 #Fixing column names and combining columns----
 
-# Rerun alphabetising code on full dataset 
-all_candy <- all_candy %>% 
-  select(sort(names(.))) %>% 
-  relocate("year", "age", "going_out", "gender", "country", everything())
+# Rerun arrange columns function as candy columns will not be alphabetised after new ones added during join
+all_candy <- arrange_columns(all_candy)
 
 
 # Scanned through column names by eye, identified and fixed issues for following columns:
@@ -130,36 +113,43 @@ all_candy <- all_candy %>%
 #   m and ms
 #   sweetums
 
-# Could this be a function? Where you input the columns to combine, the new column name and then delete the one you don't want?? 
-
-all_candy <- all_candy %>% 
-  rename(abstained_from_m_and_m_ing = abstained_from_m_ming) %>% 
-# there are 3 columns which may be related. In 2015 and 2016 we have 1) anonymous brown globs that come in black and orange wrappers and 2) mary janes. In 2017 we have - anonymous brown globs that come in black and orange wrappers aka mary janes. Decision made to combine the columns which say have "mary jane" in name. Also an internet search shows that Mary Jane sweets have the name on the wrapper so they are unlikely to be anonymous brown blobs. 
-  mutate(mary_janes = coalesce(anonymous_brown_globs_that_come_in_black_and_orange_wrappers_a_k_a_mary_janes, mary_janes)) %>% 
-  select(-anonymous_brown_globs_that_come_in_black_and_orange_wrappers_a_k_a_mary_janes) %>% 
-# In 2017 the bonkers column was split into 'bonkers the candy' and 'bonkers the board game'. Combine 'bonkers the candy' with other bonkers data from 2015 adn 2016 and remove the 'bonkers the candy column. 
-  mutate(bonkers = coalesce(bonkers, bonkers_the_candy)) %>% 
-  select(-bonkers_the_candy) %>% 
-# box-o-raisins columns spelt differently in different years, these were combined
-  mutate(box_o_raisins = coalesce(box_o_raisins, boxo_raisins)) %>% 
-  select(-boxo_raisins) %>% 
-# combine the two dark chocolate hershey columns
-  mutate(hersheys_dark_chocolate = coalesce(dark_chocolate_hershey, hersheys_dark_chocolate)) %>% 
-  select(-dark_chocolate_hershey) %>% 
-# combine the two fake M&M columns
-  mutate(third_party_m_ms = coalesce(independent_m_ms, third_party_m_ms)) %>% 
-  select(-independent_m_ms) %>% 
-# combine the two sweetums columns
-mutate(sweetums = coalesce(sweetums, sweetums_a_friend_to_diabetes)) %>% 
-  select(-sweetums_a_friend_to_diabetes)
-
-# All columns were checked to make sure only NAs were being overwritten when columns were combined. 
+# Function to combine columns as we are doing it multiple times
+# Can't get this function to work and don't know why??
+# Thought it might be because I'm reusing column names but changing this doesn't help
+#   combine_columns <- function(dataset, col_name, col1, col2, col_to_remove){
+#       dataset %>% 
+#       mutate(col_name = coalesce(col1, col2)) %>% 
+#       select(-col_to_remove)
+#   }    
+  
 
 
-
-all_candy <- all_candy %>% 
-  select(sort(names(.))) %>% 
-  relocate("year", "age", "going_out", "gender", "country", everything())
+  all_candy <- all_candy %>% 
+    rename(abstained_from_m_and_m_ing = abstained_from_m_ming) %>% 
+    
+    # there are 3 columns which may be related. In 2015 and 2016 we have 1) anonymous brown globs that come in black and orange wrappers and 2) mary janes. In 2017 we have - anonymous brown globs that come in black and orange wrappers aka mary janes. Decision made to combine the columns which say have "mary jane" in name. Also an internet search shows that Mary Jane sweets have the name on the wrapper so they are unlikely to be anonymous brown blobs. 
+    mutate(mary_janes = coalesce(anonymous_brown_globs_that_come_in_black_and_orange_wrappers_a_k_a_mary_janes, mary_janes)) %>% 
+    select(-anonymous_brown_globs_that_come_in_black_and_orange_wrappers_a_k_a_mary_janes) %>% 
+    
+    # In 2017 the bonkers column was split into 'bonkers the candy' and 'bonkers the board game'. Combine 'bonkers the candy' with other bonkers data from 2015 adn 2016 and remove the 'bonkers the candy column. 
+    mutate(bonkers = coalesce(bonkers, bonkers_the_candy)) %>% 
+    select(-bonkers_the_candy) %>% 
+    # box-o-raisins columns spelt differently in different years, these were combined
+    mutate(box_o_raisins = coalesce(box_o_raisins, boxo_raisins)) %>% 
+    select(-boxo_raisins) %>% 
+    # combine the two dark chocolate hershey columns
+    mutate(hersheys_dark_chocolate = coalesce(dark_chocolate_hershey, hersheys_dark_chocolate)) %>% 
+    select(-dark_chocolate_hershey) %>% 
+    # combine the two fake M&M columns
+    mutate(third_party_m_ms = coalesce(independent_m_ms, third_party_m_ms)) %>% 
+    select(-independent_m_ms) %>% 
+    # combine the two sweetums columns
+    mutate(sweetums = coalesce(sweetums, sweetums_a_friend_to_diabetes)) %>% 
+    select(-sweetums_a_friend_to_diabetes)
+  
+  # All columns were checked to make sure only NAs were being overwritten when columns were combined. 
+  
+arrange_columns(all_candy)
 
 # Fixing column contents (non-candy columns)----
 
