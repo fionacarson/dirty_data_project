@@ -21,6 +21,9 @@ The original dataset in .csv format can be sourced from the raw_data folder. Thi
 
 RStudio     2022.07.2+576 "Spotted Wakerobin" 
 R           4.2.2
+
 tidyverse   1.3.1
+
 readxl      1.4.0
+
 here        1.0.1
