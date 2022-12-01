@@ -4,8 +4,9 @@ output:
   html_document:
     toc: yes
     toc_float: true
-    toc_depth: '2'
-    highlight: tango
+    toc_depth: '3'
+    highlight: zenburn
+    theme: darkly
     df_print: paged
 ---
 
@@ -108,33 +109,31 @@ The average age of people not going out trick or treating was 39. I can't think 
 Assumption -  this means which candy received highest number of joy ratings, the highest number of meh ratings etc. 
 
 ```{r}
-candy %>% 
+
+highest_rating <- function(JOY_MEH_DESPAIR) {
+rating_results <- candy %>% 
   pivot_longer(cols = 6:123, names_to = "candy", values_to = "rating") %>% 
   group_by(candy) %>% 
-  filter(rating == "JOY") %>% 
+  filter(rating == JOY_MEH_DESPAIR) %>% 
   summarise(total_ratings = n()) %>% 
   filter(total_ratings == max(total_ratings))
 
-candy %>% 
-  pivot_longer(cols = 6:123, names_to = "candy", values_to = "rating") %>% 
-  group_by(candy) %>% 
-  filter(rating == "DESPAIR") %>% 
-  summarise(total_ratings = n()) %>% 
-  filter(total_ratings == max(total_ratings))
+highest_candy <- rating_results[1,1]
+num_ratings <- rating_results[1,2]
+  
+paste0("The candy with the most ", JOY_MEH_DESPAIR, " ratings is ", rating_results$candy, 
+       " with a count of ", rating_results$total_ratings, ".")
 
+  }
 
-candy %>% 
-  pivot_longer(cols = 6:123, names_to = "candy", values_to = "rating") %>% 
-  group_by(candy) %>% 
-  filter(rating == "MEH") %>% 
-  summarise(total_ratings = n()) %>% 
-  filter(total_ratings == max(total_ratings))
+highest_rating("JOY")
+highest_rating("MEH")
+highest_rating("DESPAIR")
 ```
+
 I wasted an extremely long time on this question by trying to answer it without pivoting :(
 
 Any full sized candy bar brings the most joy, while broken glow stick bring the most despair which isn't that surprising. Lollipops get the highest meh rating which was a little surprising, I would have thought they would have been more popular. 
-
-
 
 ## Question 5
 
@@ -364,6 +363,11 @@ candy_num_ratings %>%
   filter(total_ratings == max(total_ratings))
 ```
 
+
+  
+  
+  
+  
 
 **Investigating top 3 candy's by country**
 
