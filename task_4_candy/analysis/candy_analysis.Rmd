@@ -307,7 +307,7 @@ high_score_by_multiple_countries <- function(dataset, cntry){
 high_score_by_multiple_countries(candy_num_ratings, all_other_countries_vec)
 ```
 
-There is a draw for the most popular candy in all other countries. These numbers seem low. If I have time I'll go back and check them. 
+There is a draw for the most popular candy in all other countries. These numbers seem low but there is only 105 observations for countries other than USA, UK and Canada (not counting NAs). A manual check of the data shows these numbers are accurate. 
 
 ### NA
 

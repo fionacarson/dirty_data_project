@@ -28,16 +28,6 @@ ship <- ship %>%
   select(-record, -time, -ew, -sact, -speed, -sdir, -aprs, - atmp, -sal, -obs, 
          -month, -long360, -latcell, -longecell, -stmp, -depth, -csmeth, -wdir) 
 
-# Conducted a full join to ensure we weren't losing any data. We originally get 
-# one more record than expected. Upon investigation it looks like a typo has 
-# been made in the record_id for an albatross in the bird dataset - this was fixed. 
-
-bird <- bird %>% 
-# Filtered to check there was only one record with this number before we change it. 
-#    filter(record_id == 1184009) %>% 
-    mutate(record_id = replace(record_id, record_id == 1184009, 1104009))
-
-
 # Could use regex to remove the uppercase letters from the common_name
 # variable but this also removes other information, such as from record 1087001 where 
 # it says "NO BIRDS RECORDED".
@@ -51,9 +41,12 @@ bird <- bird %>%
   mutate(common_name = str_remove_all(common_name, "SUB")) %>% 
   mutate(common_name = str_remove_all(common_name, "IMM")) %>% 
   mutate(common_name = str_remove_all(common_name, "JUV")) %>%
-  mutate(common_name = str_remove_all(common_name, "PL[1-5]")) 
-
-
+  mutate(common_name = str_remove_all(common_name, "PL[1-6]")) %>% 
+  mutate(common_name = str_remove_all(common_name, "LGHT")) %>% 
+  mutate(common_name = str_remove_all(common_name, "DRK")) %>% 
+  mutate(common_name = str_remove_all(common_name, "INT")) %>% 
+  mutate(common_name = str_remove_all(common_name, "WHITE"))
+    
 bird <- bird %>% 
   mutate(scientific_name = str_remove_all(scientific_name, "sensu lato")) %>% 
   mutate(scientific_name = str_remove_all(scientific_name, "AD")) %>% 
@@ -61,27 +54,50 @@ bird <- bird %>%
   mutate(scientific_name = str_remove_all(scientific_name, "SUB")) %>% 
   mutate(scientific_name = str_remove_all(scientific_name, "IMM")) %>% 
   mutate(scientific_name = str_remove_all(scientific_name, "JUV")) %>%
-  mutate(scientific_name = str_remove_all(scientific_name, "PL[1-5]")) 
+  mutate(scientific_name = str_remove_all(scientific_name, "PL[1-6]")) %>% 
+  mutate(scientific_name = str_remove_all(scientific_name, "LGHT")) %>% 
+  mutate(scientific_name = str_remove_all(scientific_name, "DRK")) %>% 
+  mutate(scientific_name = str_remove_all(scientific_name, "INT")) %>% 
+  mutate(scientific_name = str_remove_all(scientific_name, "WHITE"))
 
-bird %>% 
-  str_trim(common_name, side = right)
-
-
-  
-birds_common_names <- bird %>% 
-  group_by(common_name) %>% 
-  summarise(count = n()) %>% 
-  arrange(desc(count))
+bird <- bird %>% 
+  mutate(common_name = str_trim(common_name, side = "right"))
 
 
   
-# q#all_data <- full_join(bird, ship, by = "record_id")
+#birds_common_names <- bird %>% 
+#  filter(str_detect(common_name, "skua")) %>% 
+#  group_by(common_name) %>% 
+#  summarise(count = n()) %>% 
+#  arrange(desc(count))
+
+
+#albatross    8
+#petrel        50
+#shearwater    15
+#prion         8
+#gannet       1
+#mollymawk    10
+#gull         4  
+#tern         12
+#skua         5
+
+
+# 113 of 156
 
 
 
 
+# Conducted a full join to ensure we weren't losing any data. We originally get 
+# one more record than expected. Upon investigation it looks like a typo has 
+# been made in the record_id for an albatross in the bird dataset - this was fixed. 
 
+bird <- bird %>% 
+  # Filtered to check there was only one record with this number before we change it. 
+  #    filter(record_id == 1184009) %>% 
+  mutate(record_id = replace(record_id, record_id == 1184009, 1104009))
 
-ship2 %>% 
-  group_by(wind_dir) %>% 
-  summarise(count = n())
+all_data <- full_join(bird, ship, by = "record_id")
+
+write_csv(all_data, "clean_data/clean_seabirds_data.csv")
+

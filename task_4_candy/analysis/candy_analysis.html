@@ -3198,7 +3198,9 @@ fix it.</p>
   </script>
 </div>
 <p>There is a draw for the most popular candy in all other countries.
-These numbers seem low. If I have time I’ll go back and check them.</p>
+These numbers seem low but there is only 105 observations for countries
+other than USA, UK and Canada (not counting NAs). A manual check of the
+data shows these numbers are accurate.</p>
 </div>
 <div id="na" class="section level3">
 <h3>NA</h3>
@@ -3346,7 +3348,7 @@ $(document).ready(function ()  {
 
     // establish options
     var options = {
-      selectors: "h1,h2",
+      selectors: "h1,h2,h3",
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
