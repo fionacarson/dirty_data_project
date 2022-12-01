@@ -1,11 +1,27 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Dirty Data Project - Task 3 Seabirds"
+output:
+  html_document:
+    toc: yes
+    toc_float: true
+    toc_depth: '3'
+    highlight: zenburn
+    theme: darkly
+    df_print: paged
 ---
 
 ```{r}
+library(tidyverse)
+library(here)
 
-all_data %>% 
+birds <- read_csv(here("clean_data/clean_seabirds_data.csv"))
+```
+
+
+
+```{r}
+
+birds %>% 
   select(common_name, scientific_name, species_abbreviation) %>% 
   group_by(common_name, scientific_name, species_abbreviation) %>% 
   summarise(count = n()) %>% 
