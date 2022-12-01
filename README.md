@@ -7,6 +7,19 @@ The main purpose is to gain experience in dealing with such datasets. The projec
  
 The work in this repository was conducted with the R programming language. 
 
+### Task 1 - Decathlon
+The decathlon dataset contains the results from each of the 10 events in the decathlon. The data covers two competitions - the 2004 Olympic Games and the 2004 Decastar competition. The data also includes the place the athlete finished ("rank") and their total points. 
+This dataset only required a few relatively minor cleaning steps before it was interrogated to answer questions on longest jump, average 100 metre times, highest points total etc. 
+This is a nice dataset which shows the dominance of three decathletes during the 2004 season. 
+
+### Task 4 - Hallween Candy
+The boing boing candy dataset contains the results of a Halloween candy survey. The data covers three years (2015, 2016 and 2017) and includes information on the person completing the survey, such as age, gender and country. The ratings used were Joy, Despair, Meh or NA for the 2016 and 2017 data; Meh was not an option in 2015. The 2015 data also lacked information on the gender and country of the person completing the survey.
+I believe it is accurate to say the original datasets were a mess and required extensive cleaning. The country column, in particular, had a lot of non-standard answers. 
+Some analysis was conducted on the age of participants but most of the analysis focussed on which candies were most or least popular. The items rated weren't just candy, things like DVDs, glow sticks and pharmaceuticals were also included. Limiting the analysis to just candy was considered but it was decided to leave non-candy items in for completeness. 
+
+### Task 3 - Seabirds
+Work in progress...
+
 ## How to run the project
 
 The file structure for each task within the project is as follows:
