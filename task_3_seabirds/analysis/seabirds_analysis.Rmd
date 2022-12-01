@@ -1,0 +1,14 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+
+all_data %>% 
+  select(common_name, scientific_name, species_abbreviation) %>% 
+  group_by(common_name, scientific_name, species_abbreviation) %>% 
+  summarise(count = n()) %>% 
+  arrange(desc(count))
+```
+

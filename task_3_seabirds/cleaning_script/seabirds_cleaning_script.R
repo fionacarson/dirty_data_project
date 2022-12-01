@@ -17,13 +17,14 @@ bird <- bird %>%
          accomp_num = nacc) %>% 
 # The columns below were removed as they didn't provide useful information or 
 # weren't relevant for answering the questions  
-  select(-record, -species_abbreviation, -wanplum, -plphase, -sex, -nfeed, -ocfeed, -nsow,
+  select(-record, -wanplum, -plphase, -sex, -nfeed, -ocfeed, -nsow,
          -ocsow, -nsoice, -ocsoice, -ocsoshp, -ocinhd, -nflyp, -ocflyp, -nfoll, 
          -ocfol, -ocmoult, -ocnatfed, -ocacc)
 
 
 ship <- ship %>% 
-  rename(cloud = cld, precip = prec, wind_speed = wspeed, sea_state = sste) %>% 
+  rename(cloud = cld, precip = prec, wind_speed = wspeed, sea_state = sste, 
+         season = seasn) %>% 
   select(-record, -time, -ew, -sact, -speed, -sdir, -aprs, - atmp, -sal, -obs, 
          -month, -long360, -latcell, -longecell, -stmp, -depth, -csmeth, -wdir) 
 
@@ -37,6 +38,44 @@ bird <- bird %>%
 # Filtered to check there was only one record with this number before we change it. 
 #    filter(record_id == 1184009) %>% 
     mutate(record_id = replace(record_id, record_id == 1184009, 1104009))
+
+
+# Could use regex for this and remove the uppercase letters from the common_name
+# variable but this also remove other information, such as record 1087001 where 
+# it says "NO BIRDS RECORDED".
+# Decided to remove exact strings as this can also be used on scientific column.
+
+fix_names <- function(col)
+bird %>% 
+  mutate(col = str_remove_all(common_name, "sensu lato")) %>% 
+  mutate(common_name = str_remove_all(common_name, "AD")) %>% 
+  mutate(common_name = str_remove_all(common_name, "SUBAD")) %>% 
+  mutate(common_name = str_remove_all(common_name, "SUB")) %>% 
+    mutate(common_name = str_remove_all(common_name, "IMM")) %>% 
+  mutate(common_name = str_remove_all(common_name, "JUV")) 
+
+
+fix_names <- function(col){
+  bird %>% 
+    mutate(col = str_remove_all(col, "sensu lato")) %>% 
+    mutate(col = str_remove_all(col, "AD")) %>% 
+    mutate(col = str_remove_all(col, "SUBAD")) %>% 
+    mutate(col = str_remove_all(col, "SUB")) %>% 
+    mutate(col = str_remove_all(col, "IMM")) %>% 
+    mutate(col = str_remove_all(col, "JUV")) %>% 
+    mutate(col = str_remove_all(col, "[PL][1-5]"))
+}
+
+
+bird2 <- fix_names("common_name")
+
+  
+# I'm not convinced regex is the best way to go here. Multiple lines of code to 
+# remove the actual offending expression might be better and could then be used for 
+bird3 <- bird %>% 
+  mutate(common_name = str_remove_all(common_name, "sensu lato")) %>% 
+  mutate(common_name = str_remove_all(common_name, "[A-Z]{2,}")) 
+
 
 
   

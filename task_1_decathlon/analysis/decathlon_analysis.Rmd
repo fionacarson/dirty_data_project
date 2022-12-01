@@ -5,7 +5,8 @@ output:
     toc: yes
     toc_float: true
     toc_depth: '2'
-    highlight: tango
+    highlight: zenburn
+    theme: darkly
     df_print: paged
 ---
 
@@ -89,7 +90,9 @@ Assumption - the question means the shot-put distance since it is not possible t
 
 ```{r}
 decathlon %>% 
-# Slicing the 6 lowest numbers in rank column to catch the 1, 2, 3 ranked positions in each competition. There are no ties so don't need to worry about that  
+# Slicing the 6 lowest numbers in rank column to catch the 1, 2, 3 ranked 
+# positions in each competition. There are no ties so don't need to worry about 
+# that.  
   slice_min(rank, n = 6) %>% 
   select(athlete, shot_put, rank, competition) %>% 
   arrange(competition, rank)
@@ -103,24 +106,15 @@ The first, second and third places in both competitions were taken by the same m
 **What was the average points for competitors who ran the 400m in less than 50 seconds vs. those than ran 400m in more than 50 seconds?**
 
 ```{r}
-# A quick check showed no one ran exactly 50 seconds so all athletes will be caught by >50 and <50
+decathlon %>% 
+  mutate(x400m_speed = ifelse(x400m > 50, "more than 50 sec", 
+                              "less than 50 sec")) %>% 
+  group_by(x400m_speed) %>% 
+  summarise(average_points = round(mean(points), 0))
+  
 
-avg_points_slower_athletes<- decathlon %>% 
-  filter(x400m > 50) %>% 
-  summarise(avg_points_slower_athletes = round(mean(points), 0)) %>% 
-  pull()
 
-avg_points_faster_athletes <- decathlon %>% 
-  filter(x400m < 50) %>% 
-  summarise(avg_points_faster_athletes = round(mean(points), 0)) %>% 
-  pull()
 
-tibble(
-  "x400m_speed" = c("less than 50 sec", "more than 50 sec"),
-  "average_points" = c(avg_points_slower_athletes, avg_points_faster_athletes)
-)
-
-# Would have liked to conduct this analysis in one piece of code and without creating the variables.
 ```
 
-The athletes who are slower at the 400 m have a lower points average than those who are faster.
+The athletes who are slower at the 400 m have a lower points average than those who are faster. This isn't surprising as those who are slower at the 400 m are more likely to be slower at the other running events which will affect their overall points total. 
