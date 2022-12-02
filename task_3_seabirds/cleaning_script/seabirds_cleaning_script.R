@@ -1,11 +1,8 @@
 library(tidyverse)
 library(readxl)
 
-# May not need code files, can delete if we don't
 ship <- read_excel("raw_data/seabirds.xls", sheet = "Ship data by record ID")
 bird <- read_excel("raw_data/seabirds.xls", sheet = "Bird data by record ID")
-ship_codes <- read_excel("raw_data/seabirds.xls", sheet = "Ship data codes")
-bird_codes <- read_excel("raw_data/seabirds.xls", sheet = "Bird data codes")
 
 bird <- janitor::clean_names(bird)
 ship <- janitor::clean_names(ship)
@@ -34,19 +31,54 @@ ship <- ship %>%
 # Decided to remove exact strings as this can also be used on scientific column.
 
 
+  
+fix_names <- function(dataset_name, colx) {
+dataset_name <- dataset_name %>% 
+  mutate(colx = str_remove_all(colx, "sensu lato")) %>% 
+  mutate(colx = str_remove_all(colx, " AD")) %>% 
+  mutate(colx = str_remove_all(colx, " SUBAD")) %>% 
+  mutate(colx = str_remove_all(colx, " SUB")) %>% 
+  mutate(colx = str_remove_all(colx, " IMM")) %>% 
+  mutate(colx = str_remove_all(colx, " JUV")) %>%
+  mutate(colx = str_remove_all(colx, " ADF")) %>%
+  mutate(colx = str_remove_all(colx, " PL[1-6]")) %>% 
+  mutate(colx = str_remove_all(colx, " LGHT")) %>% 
+  mutate(colx = str_remove_all(colx, " DRK")) %>% 
+  mutate(colx = str_remove_all(colx, " INT")) %>% 
+  mutate(colx = str_remove_all(colx, " WHITE")) %>% 
+  #checked that this string wasn't being picked up elsewhere in names and it wasn't
+  mutate(colx = str_remove_all(colx, " sp")) %>% 
+  mutate(colx = str_remove_all(colx, " sp.")) %>% 
+  mutate(colx = str_trim(colx, side = "right"))
+}
+
+bird <- fix_names(bird, "common_name")
+
+
+
+
+
 bird <- bird %>% 
   mutate(common_name = str_remove_all(common_name, "sensu lato")) %>% 
-  mutate(common_name = str_remove_all(common_name, "AD")) %>% 
-  mutate(common_name = str_remove_all(common_name, "SUBAD")) %>% 
-  mutate(common_name = str_remove_all(common_name, "SUB")) %>% 
-  mutate(common_name = str_remove_all(common_name, "IMM")) %>% 
-  mutate(common_name = str_remove_all(common_name, "JUV")) %>%
-  mutate(common_name = str_remove_all(common_name, "PL[1-6]")) %>% 
-  mutate(common_name = str_remove_all(common_name, "LGHT")) %>% 
-  mutate(common_name = str_remove_all(common_name, "DRK")) %>% 
-  mutate(common_name = str_remove_all(common_name, "INT")) %>% 
-  mutate(common_name = str_remove_all(common_name, "WHITE"))
-    
+  mutate(common_name = str_remove_all(common_name, " AD")) %>% 
+  mutate(common_name = str_remove_all(common_name, " SUBAD")) %>% 
+  mutate(common_name = str_remove_all(common_name, " SUB")) %>% 
+  mutate(common_name = str_remove_all(common_name, " IMM")) %>% 
+  mutate(common_name = str_remove_all(common_name, " JUV")) %>%
+  mutate(common_name = str_remove_all(common_name, " ADF")) %>%
+  mutate(common_name = str_remove_all(common_name, " PL[1-6]")) %>% 
+  mutate(common_name = str_remove_all(common_name, " LGHT")) %>% 
+  mutate(common_name = str_remove_all(common_name, " DRK")) %>% 
+  mutate(common_name = str_remove_all(common_name, " INT")) %>% 
+  mutate(common_name = str_remove_all(common_name, " WHITE")) %>% 
+  #checked that this string wasn't being picked up elsewhere in names and it wasn't
+  mutate(common_name = str_remove_all(common_name, " sp")) %>% 
+  mutate(common_name = str_remove_all(common_name, " sp.")) %>% 
+  mutate(common_name = str_trim(common_name, side = "right"))
+
+
+
+
 bird <- bird %>% 
   mutate(scientific_name = str_remove_all(scientific_name, "sensu lato")) %>% 
   mutate(scientific_name = str_remove_all(scientific_name, "AD")) %>% 
@@ -58,18 +90,43 @@ bird <- bird %>%
   mutate(scientific_name = str_remove_all(scientific_name, "LGHT")) %>% 
   mutate(scientific_name = str_remove_all(scientific_name, "DRK")) %>% 
   mutate(scientific_name = str_remove_all(scientific_name, "INT")) %>% 
-  mutate(scientific_name = str_remove_all(scientific_name, "WHITE"))
+  mutate(scientific_name = str_remove_all(scientific_name, "WHITE")) %>% 
+  mutate(scientific_name = str_remove_all(scientific_name, " sp")) %>%
+  mutate(scientific_name = str_remove_all(scientific_name, " sp.")) %>%
+  mutate(scientific_name = str_trim(scientific_name, side = "right"))
+
 
 bird <- bird %>% 
-  mutate(common_name = str_trim(common_name, side = "right"))
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, "sensu lato")) %>% 
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, "AD")) %>% 
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, "SUBAD")) %>% 
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, "SUB")) %>% 
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, "IMM")) %>% 
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, "JUV")) %>%
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, "PL[1-6]")) %>% 
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, "LGHT")) %>% 
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, "DRK")) %>% 
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, "INT")) %>% 
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, "WHITE")) %>% 
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, " sp")) %>%
+  mutate(species_abbreviation = str_remove_all(species_abbreviation, " sp.")) %>%
+  mutate(species_abbreviation = str_trim(species_abbreviation, side = "right"))
+
+
+
+birds_common_names <- bird %>% 
+#  filter(str_detect(common_name, " sp")) %>% 
+  group_by(common_name) %>% 
+  summarise(count = n()) %>% 
+  arrange(desc(count))
 
 
   
-#birds_common_names <- bird %>% 
+birds_common_names <- bird %>% 
 #  filter(str_detect(common_name, "skua")) %>% 
-#  group_by(common_name) %>% 
-#  summarise(count = n()) %>% 
-#  arrange(desc(count))
+  group_by(scientific_name) %>% 
+  summarise(count = n()) %>% 
+  arrange(desc(count))
 
 
 #albatross    8
