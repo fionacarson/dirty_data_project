@@ -112,9 +112,6 @@ decathlon %>%
   group_by(x400m_speed) %>% 
   summarise(average_points = round(mean(points), 0))
   
-
-
-
 ```
 
 The athletes who are slower at the 400 m have a lower points average than those who are faster. This isn't surprising as those who are slower at the 400 m are more likely to be slower at the other running events which will affect their overall points total. 

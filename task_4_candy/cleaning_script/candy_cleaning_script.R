@@ -211,5 +211,5 @@ all_candy <- all_candy %>%
 
 
 # Writing data ----
-
+      
 write_csv(all_candy, "clean_data/clean_candy_data.csv")

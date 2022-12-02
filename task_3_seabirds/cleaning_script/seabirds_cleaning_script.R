@@ -30,6 +30,8 @@ ship <- ship %>%
 # it says "NO BIRDS RECORDED".
 # Decided to remove exact strings as this can also be used on scientific column.
 
+# change no birds recorded to NA
+# input 1 for records where count is zero
 
   
 fix_names <- function(dataset_name, colx) {
@@ -50,6 +52,7 @@ fix_names <- function(dataset_name, colx) {
     mutate(colx = str_remove_all(colx, " sp")) %>% 
     mutate(colx = str_remove_all(colx, " sp.")) %>% 
     mutate(colx = str_trim(colx, side = "right"))
+  return(data_name)
 }
 
 bird <- fix_names(bird, "common_name")
@@ -111,6 +114,46 @@ bird <- bird %>%
   mutate(species_abbreviation = str_remove_all(species_abbreviation, " sp")) %>%
   mutate(species_abbreviation = str_remove_all(species_abbreviation, " sp.")) %>%
   mutate(species_abbreviation = str_trim(species_abbreviation, side = "right"))
+
+
+SARAHS CODE
+
+## create a function to remove multiple strings from a columns
+strip_strings <- function(old_column, strings){
+  cleaned <- old_column
+
+  # order strings longest first so "string within string" is not a problem
+  order <- sort(nchar(strings), decreasing=TRUE, index.return=TRUE)
+  strings <- strings[order$ix]
+  
+  for (badstring in strings){
+    cleaned <- str_remove(cleaned,str_c(" ",badstring)) 
+    # adding this doesn't allow for a string to be 'embedded'
+    # in this case it fixes problem of accidentally removing 
+    # 'F' and 'M' at the start of species name
+    cleaned <- str_trim(cleaned)
+  }
+  return(cleaned)  
+}
+
+## extract extra codes from species_abbreviation columnn
+extra_codes <- bird_clean %>%
+  select(species_abbreviation) %>% 
+  separate(species_abbreviation, 
+           c("spec_abbrev", "extra1","extra2")," ")
+# union finds unique values 
+combined_codes <- as_tibble (union_all(extra_codes$extra1,extra_codes$extra2)) %>% 
+  drop_na() %>% 
+  distinct() %>% 
+  pull()
+
+#now use codes to clean species_common_name
+bird_clean <- bird_clean %>% 
+  mutate(species_common_clean = strip_strings(species_common_name, combined_codes)) %>% 
+  mutate(species_science_clean = strip_strings(species_science_name, combined_codes)) %>% 
+  mutate(species_abbrev_clean = strip_strings(species_abbreviation, combined_codes)) 
+--------------------------------------------------------------
+
 
 
 

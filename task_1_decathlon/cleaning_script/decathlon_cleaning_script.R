@@ -1,5 +1,4 @@
 library(tidyverse)
-library(janitor)
 
 decathlon <- read_rds("raw_data/decathlon.rds")
 
