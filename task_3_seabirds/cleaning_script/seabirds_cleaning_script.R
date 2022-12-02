@@ -33,23 +33,23 @@ ship <- ship %>%
 
   
 fix_names <- function(dataset_name, colx) {
-dataset_name <- dataset_name %>% 
-  mutate(colx = str_remove_all(colx, "sensu lato")) %>% 
-  mutate(colx = str_remove_all(colx, " AD")) %>% 
-  mutate(colx = str_remove_all(colx, " SUBAD")) %>% 
-  mutate(colx = str_remove_all(colx, " SUB")) %>% 
-  mutate(colx = str_remove_all(colx, " IMM")) %>% 
-  mutate(colx = str_remove_all(colx, " JUV")) %>%
-  mutate(colx = str_remove_all(colx, " ADF")) %>%
-  mutate(colx = str_remove_all(colx, " PL[1-6]")) %>% 
-  mutate(colx = str_remove_all(colx, " LGHT")) %>% 
-  mutate(colx = str_remove_all(colx, " DRK")) %>% 
-  mutate(colx = str_remove_all(colx, " INT")) %>% 
-  mutate(colx = str_remove_all(colx, " WHITE")) %>% 
-  #checked that this string wasn't being picked up elsewhere in names and it wasn't
-  mutate(colx = str_remove_all(colx, " sp")) %>% 
-  mutate(colx = str_remove_all(colx, " sp.")) %>% 
-  mutate(colx = str_trim(colx, side = "right"))
+  dataset_name <- dataset_name %>% 
+    mutate(colx = str_remove_all(colx, "sensu lato")) %>% 
+    mutate(colx = str_remove_all(colx, " AD")) %>% 
+    mutate(colx = str_remove_all(colx, " SUBAD")) %>% 
+    mutate(colx = str_remove_all(colx, " SUB")) %>% 
+    mutate(colx = str_remove_all(colx, " IMM")) %>% 
+    mutate(colx = str_remove_all(colx, " JUV")) %>%
+    mutate(colx = str_remove_all(colx, " ADF")) %>%
+    mutate(colx = str_remove_all(colx, " PL[1-6]")) %>% 
+    mutate(colx = str_remove_all(colx, " LGHT")) %>% 
+    mutate(colx = str_remove_all(colx, " DRK")) %>% 
+    mutate(colx = str_remove_all(colx, " INT")) %>% 
+    mutate(colx = str_remove_all(colx, " WHITE")) %>% 
+    #checked that this string wasn't being picked up elsewhere in names and it wasn't
+    mutate(colx = str_remove_all(colx, " sp")) %>% 
+    mutate(colx = str_remove_all(colx, " sp.")) %>% 
+    mutate(colx = str_trim(colx, side = "right"))
 }
 
 bird <- fix_names(bird, "common_name")
