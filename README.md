@@ -1,6 +1,6 @@
-# CodeClan Dirty Data Project
+## CodeClan Dirty Data Project
 
-## Introduction
+### Introduction
 
 This project involves cleaning "dirty" datasets and performing analysis on the cleaned data. 
 The main purpose is to gain experience in dealing with such datasets. The outputs of each task are a cleaning script, a cleaned dataset and a markdown document containing the results of the analysis. It should be noted that this analysis was conducted durinng week 4 of the CodeClan Data Analysis course and so the coding is at a somewhat basic level. 
@@ -20,7 +20,7 @@ Some analysis was conducted on the age of participants but most of the analysis 
 ### Task 3 - Seabirds
 Work in progress...
 
-## How to run the project
+### How to run the project
 
 The file structure for each task within the project is as follows:
 - analysis
@@ -30,7 +30,7 @@ The file structure for each task within the project is as follows:
 
 The original dataset in .csv format can be sourced from the raw_data folder. This file is read in to the cleaning script and the output saved in the clean_data folder as a new .csv file. This new .csv file is then read in to the analysis .rmd file which can be found in the analysis folder 
 
-## Versions
+### Versions
 
 RStudio     2022.07.2+576 "Spotted Wakerobin" 
 
